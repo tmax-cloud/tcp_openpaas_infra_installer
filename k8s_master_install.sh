@@ -122,5 +122,43 @@ else
   kubectl apply -f https://github.com/kubevirt/kubevirt/releases/download/${kubevirtVersion}/kubevirt-cr.yaml  
 fi
 
+#install hypercloud-operator
+if [[ -z ${hypercloudOperatorCRDVersion} ]]; then
+  echo hypercloudOperatorCRDVersion=4.1.0.33
+  hypercloudOperatorCRDVersion=4.1.0.33
+  targetDir=${yaml_dir}
+else
+  hypercloudOperatorCRDVersion=${hypercloudOperatorCRDVersion}
+  targetDir=https://raw.githubusercontent.com/tmax-cloud/hypercloud-operator/master
+fi
+
+kubectl apply -f ${targetDir}/_yaml_Install/1.initialization.yaml
+
+kubectl apply -f ${targetDir}/_yaml_CRD/${hypercloudOperatorCRDVersion}/Auth/UserCRD.yaml
+kubectl apply -f ${targetDir}/_yaml_CRD/${hypercloudOperatorCRDVersion}/Auth/UsergroupCRD.yaml
+kubectl apply -f ${targetDir}/_yaml_CRD/${hypercloudOperatorCRDVersion}/Auth/TokenCRD.yaml
+kubectl apply -f ${targetDir}/_yaml_CRD/${hypercloudOperatorCRDVersion}/Auth/ClientCRD.yaml
+kubectl apply -f ${targetDir}/_yaml_CRD/${hypercloudOperatorCRDVersion}/Auth/UserSecurityPolicyCRD.yaml
+kubectl apply -f ${targetDir}/_yaml_CRD/${hypercloudOperatorCRDVersion}/Claim/NamespaceClaimCRD.yaml
+kubectl apply -f ${targetDir}/_yaml_CRD/${hypercloudOperatorCRDVersion}/Claim/ResourceQuotaClaimCRD.yaml
+kubectl apply -f ${targetDir}/_yaml_CRD/${hypercloudOperatorCRDVersion}/Claim/RoleBindingClaimCRD.yaml
+kubectl apply -f ${targetDir}/_yaml_CRD/${hypercloudOperatorCRDVersion}/Registry/RegistryCRD.yaml
+kubectl apply -f ${targetDir}/_yaml_CRD/${hypercloudOperatorCRDVersion}/Registry/ImageCRD.yaml
+kubectl apply -f ${targetDir}/_yaml_CRD/${hypercloudOperatorCRDVersion}/Template/TemplateCRD_v1beta1.yaml
+kubectl apply -f ${targetDir}/_yaml_CRD/${hypercloudOperatorCRDVersion}/Template/TemplateInstanceCRD_v1beta1.yaml
+
+kubectl apply -f ${targetDir}/_yaml_Install/2.mysql-settings.yaml
+kubectl apply -f ${targetDir}/_yaml_Install/3.mysql-create.yaml
+kubectl apply -f ${targetDir}/_yaml_Install/4.proauth-db.yaml
+export nodeName=`kubectl get pod -n proauth-system -o wide -o=jsonpath='{.items[0].spec.nodeName}'`
+echo "proauth server pod nodeName : $nodeName"
+wget https://raw.githubusercontent.com/tmax-cloud/hypercloud-operator/master/_yaml_Install/5.proauth-server.yaml
+sed -i "s/master-1/${nodeName}/g" 5.proauth-server.yaml
+kubectl apply -f 5.proauth-server.yaml
+rm 5.proauth-server.yaml
+
+kubectl apply -f ${targetDir}/_yaml_Install/6.hypercloud4-operator.yaml
+kubectl apply -f ${targetDir}/_yaml_Install/7.secret-watcher.yaml
+kubectl apply -f ${targetDir}/_yaml_Install/8.default-auth-object-init.yaml
 
 
