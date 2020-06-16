@@ -1,0 +1,10 @@
+# User Custom Resource
+	- User 관리 용 Resource
+	- metadata.name 에 특수문자가 불가능 하므로 '@ -> -' 로 입력해야 함 ( 추후 변경 필요 )
+	- userInfo.email 값과 metadata.name 값은 @,- 차이 빼고는 동일한 값이어야 함
+	- 'encrypted : f' 라벨 필수 입력 ( 없을 시 password 암호화 및 login 불가 )
+	
+# Resource 생성 시 기대하는 상태
+	- password 암호화
+	- passwordSalt 추가
+	- 'encrypted : t' 로 라벨 변경

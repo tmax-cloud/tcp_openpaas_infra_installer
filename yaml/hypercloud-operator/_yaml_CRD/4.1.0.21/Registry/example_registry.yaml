@@ -1,0 +1,19 @@
+apiVersion: tmax.io/v1
+kind: Registry
+metadata: 
+  name: tmax-registry
+  namespace: hypercloud-system
+spec:
+  image: 192.168.6.110:5000/registry:b004
+  description: test
+  loginId: tmax
+  loginPassword: tmax123
+  replicaSet:
+    nodeSelector:
+      kubernetes.io/hostname: ck-2
+  service:
+     type: LoadBalancer
+  persistentVolumeClaim:
+     accessModes: [ReadWriteMany]
+     storageSize: 10Gi
+     storageClassName: csi-cephfs-sc

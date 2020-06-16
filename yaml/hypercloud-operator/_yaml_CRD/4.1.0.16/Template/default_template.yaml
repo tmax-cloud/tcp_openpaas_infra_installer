@@ -1,0 +1,45 @@
+apiVersion: tmax.io/v1
+kind: Template
+metadata:
+  name: example-template
+  namespace: default
+imageUrl: example.com/example.gif
+provider: tmax
+recommend: true
+objects:
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: example
+    labels:
+      app: example
+  spec:
+    selector:
+      matchLabels:
+        app: example
+    template:
+      metadata:
+        labels:
+          app: example
+      spec:
+        containers:
+        - name: example
+          image: example/image:version
+          ports:
+          - name: example
+            containerPort: 80
+plans:
+- name: example-plan
+  metadata:
+    bullets:
+    - feat 1
+    - feat 2
+    costs:
+      amount: 100
+      unit: $
+    bindable: true
+    schemas:
+      service_instance:
+        create:
+          parameters:
+            EXAMPLE_PARAM: value

@@ -1,0 +1,171 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: namespaceclaims.tmax.io
+  annotations:
+    operator.version: %latest%
+spec:
+  group: tmax.io
+  versions:
+  - name: v1
+    served: true
+    storage: true
+  scope: Cluster
+  names:
+    plural: namespaceclaims
+    singular: namespaceclaim
+    kind: NamespaceClaim
+    shortNames:
+    - nsc
+  preserveUnknownFields: true
+  validation:
+    openAPIV3Schema:
+        # Users use namespaceclaim to request namespace and quotas.
+        # The spec of namespaceclaim is the same as resourcequota.
+        # Admins can change the 'status' of the namespaceclaim.
+        # If Admin change the Status to 'Success', a namespace and resourcequota are created.
+        # For Trial Type NameSpaceClaim, Add label 'trial: t'
+        # For Trial Type NameSpaceClaim, Add label 'owner: "userId"'
+        type: object
+        required: [resourceName,apiVersion,kind,metadata,spec]
+        properties:
+          operatorStartTime:
+            type: string
+          resourceName:
+            type: string
+          apiVersion:
+            type: string
+          kind:
+            type: string
+          metadata:
+            type: object
+            properties:
+              name:
+                type: string
+          spec:
+            # Equal Resource Quota Spec
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
+            required: [hard]
+            properties:
+              hard:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+                required: [limits.cpu,limits.memory]
+                properties:
+                  limits.cpu:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  limits.memory:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  limits.storage:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  requests.cpu:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$" 
+                  requests.memory:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  requests.storage:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  configmaps:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  persistentvolumeclaims:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  pods:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  replicationcontrollers:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  secrets:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  services:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  services.loadbalancers:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  services.nodeports:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  count/persistentvolumeclaims:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  count/services:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  count/secrets:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  count/configmaps:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  count/replicationcontrollers:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  count/deployments.apps:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  count/replicasets.apps:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  count/statefulsets.apps:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  count/jobs.batch:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  count/cronjobs.batch:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  count/deployments.extensions:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  requests.nvidia.com/gpu:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"     
+                  ssd-ceph-fs.storageclass.storage.k8s.io/requests.storage:   
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"                             
+                  hdd-ceph-fs.storageclass.storage.k8s.io/requests.storage:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  ssd-ceph-block.storageclass.storage.k8s.io/requests.storage:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+                  hdd-ceph-block.storageclass.storage.k8s.io/requests.storage:
+                    x-kubernetes-int-or-string: true
+                    pattern: "^([+]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"               
+          status:
+            type: object
+            properties:
+              lastTransitionTime:
+                format: date-time
+                type: string
+              message:
+                type: string
+              reason:
+                type: string
+              status:
+                type: string
+                enum:
+                  - Awaiting
+                  - Success
+                  - Reject
+                  - Error
+  additionalPrinterColumns:
+  - name: Status
+    type: string
+    JSONPath: .status.status
+  - name: Reason
+    type: string
+    JSONPath: .status.reason
+  subresources:
+    status: {}

@@ -1,0 +1,15 @@
+# Kubernetes API version
+apiVersion: v1
+# kind of the API object
+kind: Config
+# clusters refers to the remote service.
+clusters:
+  - name: name-of-remote-authn-service
+    cluster:
+      server: http://{HYPERCLOUD_IP}:28677/authenticate
+current-context: webhook
+contexts:
+- context:
+    cluster: name-of-remote-authn-service
+  name: webhook
+

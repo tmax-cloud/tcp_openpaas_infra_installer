@@ -1,0 +1,8 @@
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceBinding
+metadata:
+  name: nginx-binding
+  namespace: hypercloud-system
+spec:
+  instanceRef:
+    name: nginx-instance

@@ -1,0 +1,8 @@
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceBinding
+metadata:
+  name: example-binding
+  namespace: hypercloud4-system
+spec:
+  instanceRef:
+    name: example-instance

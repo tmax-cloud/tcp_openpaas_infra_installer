@@ -1,0 +1,145 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hypercloud4-system
+
+---
+
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: hypercloud4-system-quota
+  namespace: hypercloud4-system
+spec:
+  hard:
+    limits.cpu: "4"
+    limits.memory: "20Gi"
+    requests.storage: "30Gi"
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hypercloud4-admin
+  namespace: hypercloud4-system
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: hypercloud4-admin
+  namespace: hypercloud4-system
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["*"]
+
+---
+
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: hypercloud4-admin
+subjects:
+  - kind: ServiceAccount
+    name: hypercloud4-admin
+    namespace: hypercloud4-system
+roleRef:
+  kind: ClusterRole
+  name: hypercloud4-admin
+  apiGroup: rbac.authorization.k8s.io
+  
+---
+     
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: registry-config
+  namespace: hypercloud4-system
+data:
+  config.yml: |
+    version: 0.1
+    log:
+      fields:
+        service: registry
+    storage:
+      cache:
+        blobdescriptor: inmemory
+      filesystem:
+        rootdirectory: /var/lib/registry
+      delete:
+        enabled: true
+    http:
+      addr: :5000
+      headers:
+        X-Content-Type-Options: [nosniff]
+    health:
+      storagedriver:
+        enabled: true
+        interval: 10s
+        threshold: 3
+    notifications:
+      endpoints:
+      - name: hypercloud4-operator
+        url: http://hypercloud4-operator-service.hypercloud4-system:28677/registry/event
+        
+---
+# for ProAuth
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: proauth-system
+
+---
+
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: proauth-system-quota
+  namespace: proauth-system
+spec:
+  hard:
+    limits.cpu: "3"
+    limits.memory: "15Gi"
+    requests.storage: "1Ti"
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: proauth-admin
+  namespace: proauth-system
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: proauth-admin
+  namespace: proauth-system
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["*"]
+
+---
+
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: proauth-admin
+subjects:
+  - kind: ServiceAccount
+    name: proauth-admin
+    namespace: proauth-system
+roleRef:
+  kind: ClusterRole
+  name: proauth-admin
+  apiGroup: rbac.authorization.k8s.io
+  
+ # proAuth end
+        

@@ -1,0 +1,6 @@
+# Template Custom Resource
+	- Template 요청 관리 Resource
+	- K8S 환경에서 생성할 수 있는 Object 들을 Template 형태로 관리함
+	- 'objects' 에 List 형태로 object 를 명시
+	- Instance 화 할 때 입력받아야 하는 paramter 는 &{} 형태로 표시
+	- 'plans' 에 List 형태로 plan 을 명시, 'plans.schemas' 에 입력받아야 하는 paramter 들을 명시

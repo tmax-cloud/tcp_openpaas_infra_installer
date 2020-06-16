@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proauth-server-deployment
+  namespace: proauth-system
+  labels:
+    proauth: server
+    name: server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      proauth: server
+  template:
+    metadata:
+      name: proauth-server
+      labels:
+        proauth: server
+    spec:
+      containers:
+      - name: proauth-server
+        image: 192.168.6.110:5000/proauth-server:b4.0.6
+        imagePullPolicy: Always
+        env:    
+        - name: DBMS_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: DBMS_PORT
+          value: "32222"
+        - name: DBMS_USER
+          value: "oauth"
+        - name: DBMS_PASSWORD
+          value: "oauth"
+        - name: HTTP_PORT
+          value: "8080"
+        - name: TZ
+          value: Asia/Seoul
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+          requests:
+            cpu: "1"
+            memory: "1Gi"
+      nodeSelector:
+        kubernetes.io/hostname: master-1   # Node Name  ( must Match with the node the proauth db pod generate )
+      serviceAccountName: proauth-admin
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: proauth-server-service
+  namespace: proauth-system
+spec:
+  ports:
+  - name: port1
+    port: 8080
+    targetPort: 8080
+    nodePort: 31313
+  - name: port2
+    port: 9736
+    targetPort: 9736
+    nodePort: 31112
+  selector:
+    proauth: server
+  type: NodePort

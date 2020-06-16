@@ -1,0 +1,72 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: resourcequotaclaims.tmax.io
+  annotations:
+    operator.version: 4.1.0.0
+spec:
+  group: tmax.io
+  versions:
+  - name: v1
+    served: true
+    storage: true
+  scope: Namespaced
+  names:
+    plural: resourcequotaclaims
+    singular: resourcequotaclaim
+    kind: ResourceQuotaClaim
+    shortNames:
+    - rqc
+  preserveUnknownFields: true
+  validation:
+    openAPIV3Schema:
+        # Users use resourcequotaclaim to modify quotas.
+        # The spec of resourcequotaclaim is the same as resourcequota.
+        # Admins can change the 'status' of the resourcequotaclaim.
+        # If Admin change the Status to 'Success', resourcequota is updated.
+        type: object
+        required: [resourceName,apiVersion,kind,metadata,spec]
+        properties:
+          operatorStartTime:
+            type: string
+          resourceName:
+            type: string
+          apiVersion:
+            type: string
+          kind:
+            type: string
+          metadata:
+            type: object
+            properties:
+              name:
+                type: string
+          spec:
+            # Equal Resource Quota
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
+          status:
+            type: object
+            properties:
+              lastTransitionTime:
+                format: date-time
+                type: string
+              message:
+                type: string
+              reason:
+                type: string
+              status:
+                type: string
+                enum:
+                  - Awaiting
+                  - Success
+                  - Reject
+                  - Error
+  additionalPrinterColumns:
+  - name: Status
+    type: string
+    JSONPath: .status.status
+  - name: Reason
+    type: string
+    JSONPath: .status.reason
+  subresources:
+    status: {}

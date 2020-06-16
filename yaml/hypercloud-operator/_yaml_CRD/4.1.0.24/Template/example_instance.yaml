@@ -1,0 +1,14 @@
+apiVersion: tmax.io/v1
+kind: TemplateInstance
+metadata:
+  name: nginx-template-instance
+  namespace: hypercloud-system
+spec:
+  template:
+    metadata:
+      name: nginx-template
+    parameters:
+    - name: NAME
+      value: nginx
+    - name: IMAGE
+      value: nginx:1

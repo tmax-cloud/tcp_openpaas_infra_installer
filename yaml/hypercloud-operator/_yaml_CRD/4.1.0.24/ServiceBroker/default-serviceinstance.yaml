@@ -1,0 +1,15 @@
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceInstance
+metadata:
+  name: example-instance
+  namespace: hypercloud4-system
+  labels:
+    example: label
+  annotations:
+    example: annotation
+spec:
+  clusterServiceClassName: example-template
+  clusterServicePlanName: example-plan
+  parameters:
+    PARAM1: value1
+    PARAM2: value2

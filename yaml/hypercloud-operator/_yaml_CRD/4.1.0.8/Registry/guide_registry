@@ -1,0 +1,48 @@
+# Registry Custom Resource
+	- Secure Reigstry 및  secret 관리
+	- Registry의 metadata, SVC(Service), PVC(Persistent Volume Claim) 정보 입력
+	- {REGISTRY_NAMESPACE}에 생성되는 Resources 
+		- SVC: hpcd-{REGISTRY_NAME}
+		- PVC: hpcd-{REGISTRY_NAME}
+		- Secret(Registry Info, type: Opaque): hpcd-{REGISTRY_NAME}
+		- Secret(ImagePullSecret, type: kubernetes.io/dockerconfigjson): hpcd-registry-{REGISTRY_NAME}
+		- RS: hpcd-registry-{REGISTRY_NAME}
+	
+# Resource 상태
+	- Status: Creating 
+		- Registry가 사용할 SVC, PVC, RS 생성중인 상태 
+	- Status: Running
+		- Registry의  SVC, Secret, RS가 존재하고 Pod내 container가 ready인 상태
+	- Status: NotReady
+		- Container가 ready가 아닌 상태
+		- RS가 ready가 아닌 상태
+		- Pod가 Running이 아닌 상태
+	- Status: Error
+		- Registry의 리소스(svc, pvc, rs, secret) 생성에 실패한 상태
+		- Reigstry의 리소스(svc, rs, secret)가 존재하지 않는 상태
+		- Registry Pod가 종료되었거나 에러인 경우
+	
+# 필수 요구 사항
+	- secret-watcher가 daemonset으로 동작하고 있어야 함
+		- Registry가 생성한 Secret(Registry Info)으로 Registry의 인증서를 /etc/docker/certs.d/{REGISTRY_IP}:{REGISTRY_PORT} 디렉토리에 생성
+	- registry:b004 이미지 사용
+		- Registry를 생성할 경우 secure registry를 위한 image인 registry:b004를 사용해야한다. (.spec.image 필드에 registry:b004 이미지 주소를 입력)
+		- 192.168.6.110:5000 registry에서 제공
+		
+# 기능 상세
+	- Registry 기능
+		- Registry에 접근 가능한 인증서 파일을 생성하여 Secure Registry를 구축한다. 
+		- Reigstry를 사용하기 위해 Image Push가 선행되어야 한다. Image Push는 아래의 'Registry에 Image Push하기'를 참고하면된다.
+		- Secure Registry의 이미지를 사용하기 위해서는 인증서와 imagePullSecret이 있어야하는데 Registry 생성과 함께 자동으로 발급된다.
+		- 인증서는 hpcd-{REGISTRY_NAME} Secret에 관리되고 있으며 secret watcher에 의해 모든 노드에 이 인증서를 보관한다.
+		- imagePullSecret은 hpcd-registry-{REGISTRY_NAME} Secret에 관리되고 있으며 Pod 생성시 imagePullSecret 필드에 이름을 입력하여 사용한다.
+	- Registry에 Image Push하기
+		- hpcd-{REGISTRY_NAME} 이름의 Secret에서 인증서  파일(*.crt, *.cert, *.key)을 /etc/docker/certs.d/{REGISTRY_IP}:{REGISTRY_PORT} 디렉토리에 추가
+		- docker login {REGISTRY_IP}:{REGISTRY_PORT}
+			- {REGISTRY_IP}:{REGISTRY_PORT} 값은 생성한 Registry의 annotation 필드로 registry-login-url 확인
+			- loginId, loginPassword 입력
+		- docker tag image {REGISTRY_IP}:{REGISTRY_PORT}/image
+		- docker push {REGISTRY_IP}:{REGISTRY_PORT}/image
+		
+		
+	

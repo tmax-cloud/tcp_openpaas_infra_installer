@@ -1,0 +1,8 @@
+# Template Instance Custom Resource
+	- Template Instance 요청 관리 Resource
+	- 사전에 정의된 Template 을 Instance 화 하는 역할
+	- 원하는 Template 및 plan 을 명시 (plan 은 필수 X)
+	- Template 혹은 plan 에서 정의된 parameter value 들을 입력
+	
+# Resource 생성 시 기대하는 상태
+	- Template 에 정의된 Object 들이 실제로 생성됨

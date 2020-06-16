@@ -1,0 +1,15 @@
+# RoleBindingClaim Custom Resource
+	- RoleBinding 요청 관리 Resource
+	- RoleBinding 정보를 입력함
+	- RoleBindingClaim Status 를 변경하여 실제 RoleBinding 를 생성할 수 있음
+	- RoleBindingClaim Status 는 RestAPI 로만 변경 가능함 ( extension api guide 참고 )
+	
+# Resource 생성 시 기대하는 상태
+	- Status : Awaiting 로 유지
+
+# Resource 상태 변경 시 기대하는 상태
+	- Status : Success
+		- Claim 명세에 따라서 RoleBinding 이 생성 됨
+		- RoleBinding 이름은RoleBindingClaim 의 이름을 따름
+	- Status : Reject
+		- RoleBinding 이 생성되지 않음

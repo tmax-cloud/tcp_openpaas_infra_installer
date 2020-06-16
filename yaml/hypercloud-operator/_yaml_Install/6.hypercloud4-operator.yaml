@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hypercloud4-operator
+  namespace: hypercloud4-system
+  labels:
+    hypercloud4: operator
+    name: hypercloud4-operator
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      hypercloud4: operator
+  template:
+    metadata:
+      name: hypercloud4-operator
+      labels:
+        hypercloud4: operator
+    spec:
+      containers:
+      - name: hypercloud4-operator
+        image: 192.168.6.110:5000/hypercloud4-operator:b4.1.0.30
+        imagePullPolicy: Always
+        env:
+        - name: BackIp
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: BackIp1
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: INSTANCEUUID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secrets
+              key: ROOT_PASSWORD
+        - name: RETENTION_HOUR
+          valueFrom:
+            configMapKeyRef:
+              name: mysql-initdb-config
+              key: retention.hour
+        - name: RETENTION_DAY
+          valueFrom:
+            configMapKeyRef:
+              name: mysql-initdb-config
+              key: retention.day
+        - name: RETENTION_MONTH
+          valueFrom:
+            configMapKeyRef:
+              name: mysql-initdb-config
+              key: retention.month
+        - name: CATALOG_NAMESPACE
+          value: default
+        - name: TZ
+          value: Asia/Seoul       
+        - name: PROAUTH_EXIST    
+          value: "1"   #If, OpenAuth set "0"
+        - name: PROAUTH_HTTP_PORT
+          value: "8080"  
+        ports:
+        - containerPort: 28677
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+          requests:
+            cpu: "1"
+            memory: "1Gi"
+      serviceAccountName: hypercloud4-admin
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: hypercloud4-operator-service
+  namespace: hypercloud4-system
+spec:
+  ports:
+  - name: "port1"
+    port: 28677
+    protocol: TCP
+    targetPort: 28677
+  selector:
+    hypercloud4: operator
+  type: LoadBalancer

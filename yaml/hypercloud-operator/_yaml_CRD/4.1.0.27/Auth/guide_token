@@ -1,0 +1,6 @@
+# Token Custom Resource
+	- User Login 성공 시 생성됨
+	- Access Token, Refresh Token 이 기록되어 있음
+	- 암호화 되어있음
+	- Access Token 만료시간 : 1시간
+	- Refresh Token 만료시간 : 1주일

@@ -1,0 +1,13 @@
+apiVersion: tmax.io/v1
+kind: RoleBindingClaim
+metadata:
+  name: example-role-biniding
+  namespace: example-namespace
+resourceName: example-claim
+subjects:
+- kind: User
+  name: example-tmax.co.kr
+roleRef:
+  kind: ClusterRole
+  name: namespace-user
+  apiGroup: rbac.authorization.k8s.io

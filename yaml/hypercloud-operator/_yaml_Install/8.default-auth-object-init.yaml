@@ -1,0 +1,181 @@
+apiVersion: tmax.io/v1
+kind: User
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"tmax.io/v1","kind":"User","metadata":{"annotations":{},"labels":{"app":"test","encrypted":"f"},"name":"admin-tmax.co.kr"},"status":"active","userInfo":{"department":"CK2-4","description":"For test","email":"admin@tmax.co.kr","name":"Admin","password":"c7ad44cbad762a5da0a452f9e854fdc1e0e7a52a38015f23f3eab1d80b931dd472634dfac71cd34ebc35d16ab7fb8a90c81f975113d6c7538dc69dd8de9077ec","phone":"010-5730-8221","position":"developer"}}
+  creationTimestamp: "2020-03-13T05:14:36Z"
+  generation: 3
+  labels:
+    app: test
+    encrypted: f
+  name: admin-tmax.co.kr
+  resourceVersion: "8268758"
+  selfLink: /apis/tmax.io/v1/users/admin-tmax.co.kr
+  uid: eca984a0-0a99-4329-b826-6fc9ec973cfa
+status: active
+userInfo:
+  department: CK2-3
+  description: For test
+  email: admin@tmax.co.kr
+  password: c7ad44cbad762a5da0a452f9e854fdc1e0e7a52a38015f23f3eab1d80b931dd472634dfac71cd34ebc35d16ab7fb8a90c81f975113d6c7538dc69dd8de9077ec
+  name: Admin
+  phone: 010-4878-8544
+  position: administration
+  
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+# This role binding allows "jane" to read pods in the "default" namespace.
+kind: ClusterRoleBinding
+metadata:
+  name: admin
+subjects:
+- kind: User
+  name: admin-tmax.co.kr # Name is case sensitive
+roleRef:
+  kind: ClusterRole  #this must be Role or ClusterRole
+  name: cluster-admin  # this must match the name of the Role or ClusterRole you wish to bind to
+  apiGroup: rbac.authorization.k8s.io
+  
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: namespace-owner
+  labels:
+    purpose: namespace-owner
+    madeby: tmax
+rules:
+- apiGroups: ['']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['events.k8s.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['servicecatalog.k8s.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['apps']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['autoscaling']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['batch']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['kubevirt.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['extensions']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['networking.k8s.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['networking.istio.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['snapshot.storage.k8s.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['storage.k8s.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['cdi.kubevirt.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['tekton.dev']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['policy']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['apiextensions.k8s.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['tmax.io']
+  resources: ['templates','templateinstances','registries','namespaceclaims','resourcequotaclaims','users']
+  verbs: ['*']
+- apiGroups: ['rbac.authorization.k8s.io']
+  resources: ['roles','rolebindings']
+  verbs: ['*']
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: namespace-user
+  labels:
+    purpose: namespace-user
+    madeby: tmax
+rules:
+- apiGroups: ['']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['events.k8s.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['servicecatalog.k8s.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['apps']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['autoscaling']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['batch']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['kubevirt.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['extensions']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['networking.k8s.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['networking.istio.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['snapshot.storage.k8s.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['storage.k8s.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['cdi.kubevirt.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['tekton.dev']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['policy']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['apiextensions.k8s.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['tmax.io']
+  resources: ['template','templateinstances','registries','namespaceclaims','users']
+  verbs: ['*']
+  
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: clusterrole-trial
+  labels:
+    purpose: clusterrole-for-trial-user
+    madeby: tmax
+rules:
+- apiGroups: ['servicecatalog.k8s.io']
+  resources: ['*']
+  verbs: ['*']
+

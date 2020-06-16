@@ -1,0 +1,34 @@
+# User Security Policy(USP) Custom Resource
+	- User 의 OTP 인증을 위한 CRD
+	- User 생성시 UserWatcher가 USP crd를 userID와 같은 metadata.name으로 만들어준다.
+	- 자동으로 생성되는 USP의 OTPEnable은 false로 만들어진다.
+	- ex)  apiVersion: tmax.io/v1
+			kind: Usersecuritypolicy
+			metadata:
+			 name: example-tmax.co.kr
+			otpEnable: f
+			otp: 0
+    - otpEnable : 유저가 OTP 추가 인증이 필요한지 아닌지 나타내는 파라미터 (T / F)
+    - otp : 유저가 로그인시 발급 받게 될 OTP 번호 (자동생성)
+    - ipRange : 유저가 로그인시 제한된 IP로 부터의 접속을 막기 위해 관리자가 설정해줘야 할 파라미터 (IpRange에 대한 key 설정이 없을 시 모든 IP 허용, IpRange의 Key값이 존재하나 null로 설정 시 모든 IP 차단)
+      * 자세한 설명
+        	관리자가 사전에 CRD로 usersecuritypolicy란 이름의 resource를 생성했다고 가정한다.
+			해당관리자는 생성된 resource에 허용하고자 하는 ipRange 를 아래 CIDR 표기법 양식에 맞춰 입력한다.
+			ipRange : “A.B.C.D/N”
+			A.B.C.D는 32비트 IP주소를 의미한다 (예, 192.168.6.112/16에서 192.168.6.112는 IP주소를 나타냄)
+			N은 Classless Inter-Domain Routing, CIDR을 의미하며, 이는 IP주소의 첫 N비트를 네트워크 라우팅을 위한 주소를 의미한다
+			(예, 192.168.6.112/16에서 16은 CIDR을 의미하며, 첫비트 16을 네트워크 라우팅 주소로 나타낸다. 이는 192.168.X.X 로 시작하는 모든 IP에 대해 접속을 허용한다
+	
+# 관리자가 생성된 유저 USP 활성화 하기
+	- console UserSecurityPolicy 에서 활성화하고자 하는 userID로 USP를 찾아서 yaml edit한다.
+	- ex)  apiVersion: tmax.io/v1
+			kind: Usersecuritypolicy
+			metadata:
+			 name: example-tmax.co.kr
+			otpEnable: t
+			otp: 0
+			ipRange: 192.168.6.112/16
+	- 위의 예시와 같이 otpEnable을 t로 바꾼고, ipRange 파라미터를 추가한다.
+	
+	- 추가) b4.1.0.30 버전 부터 USP 정책 변경에 따라, private 환경에서 user 생성시 USP crd를 기본적으로 만들어 주지 않는다.
+	      Policy를 활성하 하고자 하는 경우, 관리자가 사용자에 해당하는 USP crd를 생성해주고 위와 같이 setting해줘야 한다.

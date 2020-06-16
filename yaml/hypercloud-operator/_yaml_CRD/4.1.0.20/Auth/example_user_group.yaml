@@ -1,0 +1,10 @@
+apiVersion: tmax.io/v1
+kind: Usergroup
+metadata: 
+  name: example
+userGroupInfo:
+  name: example
+  department: exampleTeam
+  position: exampleTeam
+  description: For Example
+status: active
