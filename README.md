@@ -1,4 +1,79 @@
-# hypercloud_infra_installer
+# HyperCloud
+
+## HyperCloud Infra
+### Prerequisites
+- CentOS 7
+
+### Setup master node
+Install Kubernetes, CRI-O, Calico, Kubevirt and HyperCloud
+1. Download installer file in our repository
+    ```
+    git clone https://github.com/tmax-cloud/hypercloud_infra_installer.git
+    ```
+2. Modify `k8s.config` to suit your environment
+    * `crioVersion` : cri-o runtime version
+    * `k8sVersion` : kubeadm, kubelet, kubectl version
+      * CRI-O major and minor versions must match Kubernetes major and minor versions.
+      * ex : crioVersion=1.17 k8sVersion=1.17.6        
+      * ex : crioVersion=1.18 k8sVersion=1.18.3
+    * `apiServer` : The IP address the API Server will advertise it's listening on.
+      * ex : apiServer={Kubernetes master IP}
+      * ex : apiServer=172.22.5.2
+    * `podSubnet` : Pod IPs will be chosen from this range. This should fall within `--cluster-cidr`.
+      * ex : podSubnet={POD_IP_POOL}/{CIDR}
+      * ex : podSubnet=10.244.0.0/16
+    * `calicoVersion` : calico network plugin version(OPTIONAL)
+      * If nothing is specified, the default version(v3.13.4) is installed.
+      * ex : calicoVersion=3.13
+    * `kubevirtVersion` : kubevirt plugin version(OPTIONAL)
+      * If nothing is specified, the default version(v0.27.0) is installed.
+      * ex : kubevirtVersion=0.27.0
+3. Execute installer script
+    ```
+    ./k8s_master_install.sh
+    ```
+4.  Get the join command for worker node
+    ```
+    kubeadm token create --print-join-command
+    ```
+    You can get the result in this format:
+    ```
+    kubeadm join 192.168.122.50:6443 --token mnp5b8.u7tl2cruk73gh0zh     --discovery-token-ca-cert-hash sha256:662a697f67ecbb8b376898dcd5bf4df806249175ea4a90c2d3014be399c6c18a
+    ```
+5. If you create a single node Kubernetes cluster, you have to untaint the master node
+    ```
+    kubectl taint nodes --all node-role.kubernetes.io/master-
+    ```
+6. If the installation process fails, execute uninstaller script then installer script again
+    ```
+    ./k8s_uninstall.sh
+    ./k8s_master_install.sh
+    ```
+### Setup worker nodes
+Install Kubernetes and CRI-O
+1. Download installer file in our repository
+    ```
+    git clone https://github.com/tmax-cloud/hypercloud_infra_installer.git
+    ```
+2. Modify `k8s.config` to suit your environment
+    * `crioVersion` : cri-o runtime version
+    * `k8sVersion` : kubeadm, kubelet, kubectl version
+      * CRI-O major and minor versions must match Kubernetes major and minor versions.
+      * ex : crioVersion=1.17 k8sVersion=1.17.6        
+      * ex : crioVersion=1.18 k8sVersion=1.18.3
+3. Execute installer script
+    ```
+    ./k8s_node_install.sh
+    ```
+4. Execute the join command
+    ```
+    kubeadm join 192.168.122.50:6443 --token mnp5b8.u7tl2cruk73gh0zh     --discovery-token-ca-cert-hash sha256:662a697f67ecbb8b376898dcd5bf4df806249175ea4a90c2d3014be399c6c18a
+    ```
+5. If the installation process fails, execute uninstaller script then installer script again
+    ```
+    ./k8s_uninstall.sh
+    ./k8s_node_install.sh
+    ```
 
 ## HyperCloud Storage(hcsctl)
 `hcsctl` provides installation, removal and management of HyperCloud Storage.
