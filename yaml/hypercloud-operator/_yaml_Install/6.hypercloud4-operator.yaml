@@ -61,7 +61,7 @@ spec:
         - name: TZ
           value: Asia/Seoul       
         - name: PROAUTH_EXIST    
-          value: "1"   #If, OpenAuth set "0"
+          value: "0"   #If, OpenAuth set "0"
         - name: PROAUTH_HTTP_PORT
           value: "8080"  
         ports:
