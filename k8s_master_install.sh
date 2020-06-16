@@ -148,7 +148,7 @@ kubectl apply -f ${targetDir}/_yaml_CRD/${hypercloudOperatorCRDVersion}/Template
 
 kubectl apply -f ${targetDir}/_yaml_Install/2.mysql-settings.yaml
 kubectl apply -f ${targetDir}/_yaml_Install/3.mysql-create.yaml
-kubectl apply -f ${targetDir}/_yaml_Install/4.proauth-db.yaml
+#kubectl apply -f ${targetDir}/_yaml_Install/4.proauth-db.yaml
 #export nodeName=`kubectl get pod -n proauth-system -o wide -o=jsonpath='{.items[0].spec.nodeName}'`
 #echo "proauth server pod nodeName : $nodeName"
 #wget https://raw.githubusercontent.com/tmax-cloud/hypercloud-operator/master/_yaml_Install/5.proauth-server.yaml
