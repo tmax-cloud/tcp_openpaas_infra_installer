@@ -9,9 +9,11 @@ kubectl delete -f ${yaml_dir}/calico.yaml
 kubeadm delete -f ${yaml_dir}/kubevirt-cr.yaml
 kubeadm delete -f ${yaml_dir}/kubevirt-operator.yaml
 
-kubeadm reset -force
+kubeadm reset -f
 
-
+sed -i "s|v${k8sVersion}|{k8sVersion}|g" ${yaml_dir}/kubeadm-config.yaml
+sed -i "s|${apiServer}|{apiServer}|g" ${yaml_dir}/kubeadm-config.yaml
+sed -i "s|\"${podSubnet}\"|{podSubnet}|g" ${yaml_dir}/kubeadm-config.yaml
 
 rm -rf $HOME/.kube
 rm -rf /etc/yum.repos.d/kubernetes.repo
