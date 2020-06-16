@@ -126,12 +126,11 @@ fi
 if [[ -z ${hypercloudOperatorCRDVersion} ]]; then
   echo hypercloudOperatorCRDVersion=4.1.0.33
   hypercloudOperatorCRDVersion=4.1.0.33
-  targetDir=${yaml_dir}
 else
   hypercloudOperatorCRDVersion=${hypercloudOperatorCRDVersion}
-  targetDir=https://raw.githubusercontent.com/tmax-cloud/hypercloud-operator/master
 fi
-
+  
+targetDir=https://raw.githubusercontent.com/tmax-cloud/hypercloud-operator/master
 kubectl apply -f ${targetDir}/_yaml_Install/1.initialization.yaml
 
 kubectl apply -f ${targetDir}/_yaml_CRD/${hypercloudOperatorCRDVersion}/Auth/UserCRD.yaml
