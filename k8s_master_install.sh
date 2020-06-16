@@ -130,7 +130,7 @@ else
   hypercloudOperatorCRDVersion=${hypercloudOperatorCRDVersion}
 fi
   
-targetDir=https://raw.githubusercontent.com/tmax-cloud/hypercloud-operator/master
+targetDir=https://raw.githubusercontent.com/tmax-cloud/hypercloud_infra_installer/master/yaml/hypercloud-operator
 kubectl apply -f ${targetDir}/_yaml_Install/1.initialization.yaml
 
 kubectl apply -f ${targetDir}/_yaml_CRD/${hypercloudOperatorCRDVersion}/Auth/UserCRD.yaml
@@ -149,12 +149,12 @@ kubectl apply -f ${targetDir}/_yaml_CRD/${hypercloudOperatorCRDVersion}/Template
 kubectl apply -f ${targetDir}/_yaml_Install/2.mysql-settings.yaml
 kubectl apply -f ${targetDir}/_yaml_Install/3.mysql-create.yaml
 kubectl apply -f ${targetDir}/_yaml_Install/4.proauth-db.yaml
-export nodeName=`kubectl get pod -n proauth-system -o wide -o=jsonpath='{.items[0].spec.nodeName}'`
-echo "proauth server pod nodeName : $nodeName"
-wget https://raw.githubusercontent.com/tmax-cloud/hypercloud-operator/master/_yaml_Install/5.proauth-server.yaml
-sed -i "s/master-1/${nodeName}/g" 5.proauth-server.yaml
-kubectl apply -f 5.proauth-server.yaml
-rm 5.proauth-server.yaml
+#export nodeName=`kubectl get pod -n proauth-system -o wide -o=jsonpath='{.items[0].spec.nodeName}'`
+#echo "proauth server pod nodeName : $nodeName"
+#wget https://raw.githubusercontent.com/tmax-cloud/hypercloud-operator/master/_yaml_Install/5.proauth-server.yaml
+#sed -i "s/master-1/${nodeName}/g" 5.proauth-server.yaml
+#kubectl apply -f 5.proauth-server.yaml
+#rm 5.proauth-server.yaml
 
 kubectl apply -f ${targetDir}/_yaml_Install/6.hypercloud4-operator.yaml
 kubectl apply -f ${targetDir}/_yaml_Install/7.secret-watcher.yaml
