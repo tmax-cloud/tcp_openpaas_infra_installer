@@ -25,10 +25,10 @@ Install Kubernetes, CRI-O, Calico, Kubevirt and HyperCloud
       * ex : podSubnet=10.244.0.0/16
     * `calicoVersion` : calico network plugin version(OPTIONAL)
       * If nothing is specified, the default version(v3.13.4) is installed.
-      * ex : calicoVersion=3.13
+      * ex : calicoVersion=3.16
     * `kubevirtVersion` : kubevirt plugin version(OPTIONAL)
       * If nothing is specified, the default version(v0.27.0) is installed.
-      * ex : kubevirtVersion=0.27.0
+      * ex : kubevirtVersion=0.34.2
 3. Execute installer script
     ```
     ./k8s_master_install.sh
