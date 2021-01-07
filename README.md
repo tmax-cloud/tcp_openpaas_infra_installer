@@ -77,64 +77,76 @@ Install Kubernetes and CRI-O
     ./k8s_node_install.sh
     ```
 
-## HyperCloud Storage(hcsctl)
+## HyperCloud Storage (hcsctl)
+
 `hcsctl` provides installation, removal and management of HyperCloud Storage.
 
 ### Prerequisite
-- kubectl (>= 1.15)
-- Fully-installed Kubernetes Cluster
+
+- kubectl (>= 1.17)
+- kubernetes Cluster
+- `lvm2` package (should be installed on storage node)
+
+### Default installed version
+
+- Rook-Ceph v1.4.2
+- KubeVirt-CDI v1.22.0
 
 ### Getting Started
-- Before installing hypercloud-storage with hcsctl, create yaml files is required for installation and change it to suit your environment.
+
+- Rook-Ceph and KubeVirt-CDI yaml files are required to install hypercloud-storage. You can easily create them by using hcsctl.
 
    ``` shell
    $ hcsctl create-inventory {$inventory_name}
    # Ex) hcsctl create-inventory myInventory
    ```
-
-- Two directories of rook and cdi are created in the created inventory. `./myInventory/rook/*.yaml` are yaml files used for Rook-Ceph installation, and `./myInventory/cdi/*.yaml` are yaml files used for KubeVirt-CDI installation.
-- Since all the generated yaml files are for sample provision, you have to use the contents of each yaml file after **modifying to your environment**.<strong> Do not modify the folder and file name. </strong>
-- Modify yaml contents created under `./myInventory/rook/` path to fit your environment. Refer to https://rook.github.io/docs/rook/v1.3/ceph-cluster-crd.html
-- For yaml files created under the path `./myInventory/cdi/`, you need to change the version of `OPERATOR_VERSION` and container image in the `operator.yaml` file only if you need to change the KubeVirt-CDI version to install.
-
-
-- After modifying the inventory files to suit the environment, install hypercloud-storage with hcsctl.
+- Then, a directory is created on the current path with the given inventory name. Inside of the inventory directory, two directories are created named as rook and cdi.
+  - `./myInventory/rook/*.yaml` are yaml files for Rook-Ceph installation
+  - `./myInventory/cdi/*.yaml` are yaml files for KubeVirt-CDI installation
+- Please note that all the generated yamls are just for example. Go through each files and change values to suit your host environment
+  - **Do not modify the name of folders and files.**
+  - Take a look at [rook documentation](https://rook.github.io/docs/rook/v1.4/ceph-cluster-crd.html) before modify each fields under `./myInventory/rook/` path
+  - Change the version of `OPERATOR_VERSION and` container image in the `operator.yaml` file under the path `./myInventory/cdi/` if you want to install a different KubeVirt-CDI version than the default one
+- After modifying the inventory files to suit the environment, install hypercloud-storage with hcsctl
    ``` shell
    $ hcsctl install {$inventory_name}
    # Ex) hcsctl install myInventory
    ```
-
-    - When installation is completed normally, you can use hypercloud-storage. After installation, you can use Block Storage and Shared Filesystem.
-
-
-- Verify whether hypercloud-storage is properly installed with hcsctl.test.
+    - After installation is completed, you can use HyperCloud Block Storage and Shared Filesystem.
+- Verify if hypercloud-storage is installed completely with `rook.test` and `cdi.test` command
     ``` shell
-    $ hcsctl.test
+    $ rook.test
+    $ cdi.test
     ```
-    - To check whether hypercloud-storage can be used normally, various scenario tests are performed.
+  - This command will execute various test cases to verify that hypercloud-storage is installed properly
+  - It will take up to 15 minutes to complete the test
+  - CDI test cases are not able to run in private network environment, without public internet access.
+
 
 ### Uninstall
-- Remove hypercloud-storage by referring to inventory used when installing with hcsctl.
+
+- Remove hypercloud-storage with hcsctl. You need the same exact inventory name that you installed with hcsctl
+
     ``` shell
     $ hcsctl uninstall {$inventory_name}
     # Ex) hcsctl uninstall myInventory
     ```
-    - You need additional work by checking the message displayed after the removal is completed.
+    - You may need additional work to do depends on the message that is displayed when the uninstallation is completed to clean up remaining ceph related data
 
 ### Additional features
-- In addition to basic installation and uninstallation, various additional functions are also provided for efficient use.
 
-    You can run ceph with hcsctl.
+- In addition to installation and uninstallation, various additional functions are also provided with hcsctl for convenience
 
-    ``` shell
-    $ hcsctl ceph status
-    $ hcsctl ceph exec {$ceph_cmd}
+You can execute following ceph commands with hcsctl.
 
-    # Commands frequently used to check the status are as follows.
-    $ hcsctl ceph status
-    $ hcsctl ceph exec ceph osd status
-    $ hcsctl ceph exec ceph df
-    ```
+``` shell
+$ hcsctl ceph status
+$ hcsctl ceph exec {$ceph_cmd}
+# Commands frequently used to check the status are as follows.
+$ hcsctl ceph status
+$ hcsctl ceph exec ceph osd status
+$ hcsctl ceph exec ceph df
+```
 
 ### Compatibility
 - This project has been verified in the following versions.
