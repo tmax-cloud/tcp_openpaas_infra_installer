@@ -5,7 +5,7 @@
 - CentOS 8
 
 ### Setup master node
-Install Kubernetes, CRI-O, Calico, Kubevirt and HyperCloud
+Install Kubernetes, CRI-O, Calico and HyperCloud
 1. Download installer file in our repository
     ```
     git clone https://github.com/tmax-cloud/hypercloud_infra_installer.git
@@ -25,11 +25,8 @@ Install Kubernetes, CRI-O, Calico, Kubevirt and HyperCloud
       * ex : podSubnet={POD_IP_POOL}/{CIDR}
       * ex : podSubnet=10.244.0.0/16
     * `calicoVersion` : calico network plugin version(OPTIONAL)
-      * If nothing is specified, the default version(v3.13.4) is installed.
+      * If nothing is specified, the default version(v3.20) is installed.
       * ex : calicoVersion=3.20
-    * `kubevirtVersion` : kubevirt plugin version(OPTIONAL)
-      * If nothing is specified, the default version(v0.27.0) is installed.
-      * ex : kubevirtVersion=0.46.1
 3. Execute installer script
     ```
     ./k8s_master_install.sh
@@ -63,7 +60,8 @@ Install Kubernetes and CRI-O
       * CRI-O major and minor versions must match Kubernetes major and minor versions.
       * ex : crioVersion=1.17 k8sVersion=1.17.6        
       * ex : crioVersion=1.18 k8sVersion=1.18.3
-      * ex : crioVersion=1.19 k8sVersion=1.19.4      
+      * ex : crioVersion=1.19 k8sVersion=1.19.4
+      * ex : crioVersion=1.22 k8sVersion=1.22.2
 3. Execute installer script
     ```
     ./k8s_node_install.sh
