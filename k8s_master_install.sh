@@ -105,10 +105,12 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 if [[ -z ${calicoVersion} ]]; then
   calicoVersion=3.13
   echo calicoVersion=3.13
-  kubectl apply -f ${yaml_dir}/calico.yaml
+  #kubectl apply -f ${yaml_dir}/calico.yaml
+  kubectl apply -f calico.yaml
 else
   calicoVersion=${calicoVersion}
-  kubectl apply -f https://docs.projectcalico.org/${calicoVersion}/manifests/calico.yaml
+  #kubectl apply -f https://docs.projectcalico.org/${calicoVersion}/manifests/calico.yaml
+  kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 fi
 
 #install kubevirt-operator
