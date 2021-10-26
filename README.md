@@ -2,13 +2,13 @@
 
 ## HyperCloud Infra
 ### Prerequisites
-- CentOS 8
+- CentOS 7
 
 ### Setup master node
-Install Kubernetes, CRI-O, Calico and HyperCloud
+Install Kubernetes, CRI-O, Calico, Kubevirt and HyperCloud
 1. Download installer file in our repository
     ```
-    git clone -b v1.22 https://github.com/tmax-cloud/hypercloud_infra_installer.git
+    git clone https://github.com/tmax-cloud/hypercloud_infra_installer.git
     ```
 2. Modify `k8s.config` to suit your environment
     * `crioVersion` : cri-o runtime version
@@ -16,8 +16,7 @@ Install Kubernetes, CRI-O, Calico and HyperCloud
       * CRI-O major and minor versions must match Kubernetes major and minor versions.
       * ex : crioVersion=1.17 k8sVersion=1.17.6        
       * ex : crioVersion=1.18 k8sVersion=1.18.3
-      * ex : crioVersion=1.19 k8sVersion=1.19.4
-      * ex : crioVersion=1.22 k8sVersion=1.22.2
+      * ex : crioVersion=1.19 k8sVersion=1.19.4      
     * `apiServer` : The IP address the API Server will advertise it's listening on.
       * ex : apiServer={Kubernetes master IP}
       * ex : apiServer=172.22.5.2
@@ -25,8 +24,11 @@ Install Kubernetes, CRI-O, Calico and HyperCloud
       * ex : podSubnet={POD_IP_POOL}/{CIDR}
       * ex : podSubnet=10.244.0.0/16
     * `calicoVersion` : calico network plugin version(OPTIONAL)
-      * If nothing is specified, the default version(v3.20) is installed.
-      * ex : calicoVersion=3.20
+      * If nothing is specified, the default version(v3.13.4) is installed.
+      * ex : calicoVersion=3.16
+    * `kubevirtVersion` : kubevirt plugin version(OPTIONAL)
+      * If nothing is specified, the default version(v0.27.0) is installed.
+      * ex : kubevirtVersion=0.34.2
 3. Execute installer script
     ```
     ./k8s_master_install.sh
@@ -60,8 +62,7 @@ Install Kubernetes and CRI-O
       * CRI-O major and minor versions must match Kubernetes major and minor versions.
       * ex : crioVersion=1.17 k8sVersion=1.17.6        
       * ex : crioVersion=1.18 k8sVersion=1.18.3
-      * ex : crioVersion=1.19 k8sVersion=1.19.4
-      * ex : crioVersion=1.22 k8sVersion=1.22.2
+      * ex : crioVersion=1.19 k8sVersion=1.19.4      
 3. Execute installer script
     ```
     ./k8s_node_install.sh
