@@ -11,14 +11,14 @@ sudo yum install wget -y
 #crio repo
 
 if [[ -z ${crioVersion} ]]; then
-  VERSION=1.22
+  VERSION=1.17
 else
   echo crio version
   VERSION=${crioVersion}
 fi
 
-sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/CentOS_8/devel:kubic:libcontainers:stable.repo
-sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:${VERSION}/CentOS_8/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo
+sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/CentOS_7/devel:kubic:libcontainers:stable.repo
+sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:${VERSION}/CentOS_7/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo
 
 #install crio
 echo install crio
@@ -56,7 +56,7 @@ EOF
 
 #install kubernetes
 if [[ -z ${k8sVersion} ]]; then
-  k8sVersion=1.22.2
+  k8sVersion=1.17.6
 else
   echo k8s version
   k8sVersion=${k8sVersion}
@@ -103,12 +103,24 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 #install calico
 if [[ -z ${calicoVersion} ]]; then
-  calicoVersion=3.20
-  echo calicoVersion=3.20
+  calicoVersion=3.13
+  echo calicoVersion=3.13
   kubectl apply -f ${yaml_dir}/calico.yaml
 else
   calicoVersion=${calicoVersion}
-  kubectl apply -f https://docs.projectcalico.org/v${calicoVersion}/manifests/calico.yaml
+  kubectl apply -f https://docs.projectcalico.org/${calicoVersion}/manifests/calico.yaml
+fi
+
+#install kubevirt-operator
+if [[ -z ${kubevirtVersion} ]]; then
+  echo kubevirtVersion=0.27.0
+  kubevirtVersion=0.27.0
+  kubectl apply -f ${yaml_dir}/kubevirt-operator.yaml
+  kubectl apply -f ${yaml_dir}/kubevirt-cr.yaml
+else
+  kubevirtVersion=${kubevirtVersion}
+  kubectl apply -f https://github.com/kubevirt/kubevirt/releases/download/${kubevirtVersion}/kubevirt-operator.yaml
+  kubectl apply -f https://github.com/kubevirt/kubevirt/releases/download/${kubevirtVersion}/kubevirt-cr.yaml  
 fi
 
 #install hypercloud-operator
