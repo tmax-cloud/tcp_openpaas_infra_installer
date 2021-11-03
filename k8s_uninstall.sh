@@ -6,8 +6,6 @@ install_dir=$(dirname "$0")
 yaml_dir="${install_dir}/yaml"
 
 kubectl delete -f ${yaml_dir}/calico.yaml
-kubeadm delete -f ${yaml_dir}/kubevirt-cr.yaml
-kubeadm delete -f ${yaml_dir}/kubevirt-operator.yaml
 
 kubeadm reset -f
 
