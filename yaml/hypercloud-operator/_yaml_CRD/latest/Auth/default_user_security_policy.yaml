@@ -1,9 +1,0 @@
-apiVersion: tmax.io/v1
-kind: Usersecuritypolicy
-metadata: 
-  name: example-tmax.co.kr
-otpEnable: 
-otp: 123456
-ipRange: 
-  - 192.168.6.0/24
-  - 192.168.8.0/24

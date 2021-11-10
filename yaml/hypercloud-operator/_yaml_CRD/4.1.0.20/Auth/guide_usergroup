@@ -1,9 +1,0 @@
-# UserGroup Custom Resource
-	- UserGroup 관리 용 Resource
-	- name만 필수값
-	
-# UserGroup을 생성하는 방법
-	- userCRD에 label 로 usergroup에 속할 수 있다.
-	- 'group-"groupname" 을 통해 생성된 usergroup에 속할 수 있다.
-	
-# Role-binding 생성시 group에 usergroup명 명시시 role 부여 가능
