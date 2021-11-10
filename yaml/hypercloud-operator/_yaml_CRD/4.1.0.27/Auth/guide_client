@@ -1,9 +1,0 @@
-# Client Custom Resource
-	- Hyper Cloud 4를 이용해서 로그인을 하기 위해서 미리 등록을 하면 생성됨
-	- POST http://192.168.6.159:28677/authClient
-	- 예시 : {
-  				"appName": "woo-app",
-  				"originUri": "woo.co.kr",
-  				"redirectUri": "woo.co.kr"
-	  		}
-	- Client ID, Client Secret이 생성되서 반환됨
