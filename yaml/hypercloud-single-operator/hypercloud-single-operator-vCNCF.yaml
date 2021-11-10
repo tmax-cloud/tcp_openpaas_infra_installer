@@ -575,9 +575,31 @@ spec:
   - hypercloud-single-operator-webhook-service.hypercloud5-system.svc
   - hypercloud-single-operator-webhook-service.hypercloud5-system.svc.cluster.local
   issuerRef:
-    kind: ClusterIssuer
-    name: tmaxcloud-clusterissuer
+    kind: Issuer
+    name: hypercloud-single-operator-selfsigned-issuer
   secretName: hypercloud-single-operator-webhook-server-cert
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: hypercloud-single-operator-selfsigned-issuer
+  namespace: hypercloud5-system
+spec:
+  selfSigned: {}
+---
+#apiVersion: cert-manager.io/v1
+#kind: Certificate
+#metadata:
+#  name: hypercloud-single-operator-serving-cert
+#  namespace: hypercloud5-system
+#spec:
+#  dnsNames:
+#  - hypercloud-single-operator-webhook-service.hypercloud5-system.svc
+#  - hypercloud-single-operator-webhook-service.hypercloud5-system.svc.cluster.local
+#  issuerRef:
+#    kind: ClusterIssuer
+#    name: tmaxcloud-clusterissuer
+#  secretName: hypercloud-single-operator-webhook-server-cert
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
@@ -594,6 +616,8 @@ webhooks:
       path: /validate-claim-tmax-io-v1alpha1-namespaceclaim
   failurePolicy: Fail
   name: vnamespaceclaim.kb.io
+  admissionReviewVersions: ["v1beta1", "v1"]
+  sideEffects: None
   rules:
   - apiGroups:
     - claim.tmax.io
@@ -613,6 +637,8 @@ webhooks:
       path: /validate-claim-tmax-io-v1alpha1-resourcequotaclaim
   failurePolicy: Fail
   name: vresourcequotaclaim.kb.io
+  admissionReviewVersions: ["v1beta1", "v1"]
+  sideEffects: None
   rules:
   - apiGroups:
     - claim.tmax.io
@@ -632,6 +658,8 @@ webhooks:
       path: /validate-claim-tmax-io-v1alpha1-rolebindingclaim
   failurePolicy: Fail
   name: vrolebindingclaim.kb.io
+  admissionReviewVersions: ["v1beta1", "v1"]
+  sideEffects: None
   rules:
   - apiGroups:
     - claim.tmax.io
