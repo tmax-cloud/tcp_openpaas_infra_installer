@@ -1,9 +1,0 @@
-apiVersion: tmax.io/v1
-kind: Client
-metadata: 
-  name: tmax-client
-clientInfo:
-  appName: practice-app
-  originUri: http://tims.tmax.co.kr/
-  redirectUri: https://tims.tmax.co.kr/login.html
-
