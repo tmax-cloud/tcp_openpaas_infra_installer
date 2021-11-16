@@ -8,7 +8,7 @@
 Install Kubernetes, CRI-O, Calico and HyperCloud
 1. Download installer file in our repository
     ```
-    git clone -b v1.22 https://github.com/tmax-cloud/hypercloud_infra_installer.git
+    git clone https://github.com/tmax-cloud/hypercloud_infra_installer.git
     ```
 2. Modify `k8s.config` to suit your environment
     * `crioVersion` : cri-o runtime version
