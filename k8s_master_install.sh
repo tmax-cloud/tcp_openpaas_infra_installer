@@ -11,14 +11,14 @@ sudo yum install wget -y
 #crio repo
 
 if [[ -z ${crioVersion} ]]; then
-  VERSION=1.17
+  VERSION=1.22
 else
   echo crio version
   VERSION=${crioVersion}
 fi
 
-sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/CentOS_7/devel:kubic:libcontainers:stable.repo
-sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:${VERSION}/CentOS_7/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo
+sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/CentOS_8/devel:kubic:libcontainers:stable.repo
+sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:${VERSION}/CentOS_8/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo
 
 #install crio
 echo install crio
@@ -56,7 +56,7 @@ EOF
 
 #install kubernetes
 if [[ -z ${k8sVersion} ]]; then
-  k8sVersion=1.17.6
+  k8sVersion=1.22.2
 else
   echo k8s version
   k8sVersion=${k8sVersion}
@@ -103,25 +103,71 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 #install calico
 if [[ -z ${calicoVersion} ]]; then
-  calicoVersion=3.13
-  echo calicoVersion=3.13
+  calicoVersion=3.20
+  echo calicoVersion=3.20
   kubectl apply -f ${yaml_dir}/calico.yaml
 else
   calicoVersion=${calicoVersion}
-  kubectl apply -f https://docs.projectcalico.org/${calicoVersion}/manifests/calico.yaml
+  kubectl apply -f https://docs.projectcalico.org/v${calicoVersion}/manifests/calico.yaml
 fi
 
-#install kubevirt-operator
-if [[ -z ${kubevirtVersion} ]]; then
-  echo kubevirtVersion=0.27.0
-  kubevirtVersion=0.27.0
-  kubectl apply -f ${yaml_dir}/kubevirt-operator.yaml
-  kubectl apply -f ${yaml_dir}/kubevirt-cr.yaml
-else
-  kubevirtVersion=${kubevirtVersion}
-  kubectl apply -f https://github.com/kubevirt/kubevirt/releases/download/${kubevirtVersion}/kubevirt-operator.yaml
-  kubectl apply -f https://github.com/kubevirt/kubevirt/releases/download/${kubevirtVersion}/kubevirt-cr.yaml  
-fi
+#install hyperauth
+source k8s.config
+set -x
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+HYPERAUTH_HOME=$SCRIPTDIR/yaml/hyperauth
+
+pushd $HYPERAUTH_HOME
+
+  sed -i 's/POSTGRES_VERSION/'${POSTGRES_VERSION}'/g' 1.initialization.yaml
+  sed -i 's/HYPERAUTH_VERSION/'${HYPERAUTH_VERSION}'/g' 3.hyperauth_deployment.yaml
+
+  # step0 install cert-manager v1.5.4 & tmaxcloud-ca clusterissuer
+  yum install -y sshpass
+  kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.4/cert-manager.yaml
+  kubectl apply -f tmaxcloud-issuer.yaml
+
+  # step1 1.initialization.yaml
+  kubectl apply -f 1.initialization.yaml
+  sleep 60
+
+  # step2 Generate Certs for hyperauth
+  export ip=`kubectl describe service hyperauth -n hyperauth | grep 'LoadBalancer Ingress' | cut -d ' ' -f7`
+  sed -i 's/HYPERAUTH_EXTERNAL_IP/'$ip'/g' 2.hyperauth_certs.yaml
+  kubectl apply -f 2.hyperauth_certs.yaml
+  sleep 5
+
+  kubectl get secret hyperauth-https-secret -n hyperauth -o jsonpath="{['data']['tls\.crt']}" | base64 -d > /etc/kubernetes/pki/hyperauth.crt
+  kubectl get secret hyperauth-https-secret -n hyperauth -o jsonpath="{['data']['ca\.crt']}" | base64 -d > /etc/kubernetes/pki/hypercloud-root-ca.crt
+
+
+  ## send Certs to Another Master Node
+  IFS=' ' read -r -a masters <<< $(kubectl get nodes --selector=node-role.kubernetes.io/master -o jsonpath='{$.items[*].status.addresses[?(@.type=="InternalIP")].address}')
+  for master in "${masters[@]}"
+  do
+      if [ $master == $MAIN_MASTER_IP ]; then
+      continue
+      fi
+      sshpass -p "$MASTER_NODE_ROOT_PASSWORD" scp hypercloud-root-ca.crt ${MASTER_NODE_ROOT_USER}@"$master":/etc/kubernetes/pki/hypercloud-root-ca.crt
+      sshpass -p "$MASTER_NODE_ROOT_PASSWORD" scp hyperauth.crt ${MASTER_NODE_ROOT_USER}@"$master":/etc/kubernetes/pki/hyperauth.crt
+
+  done
+
+  # step3 Hyperauth Deploymennt
+  kubectl apply -f 3.hyperauth_deployment.yaml
+
+
+  # step5 oidc with kubernetes ( modify kubernetes api-server manifest )
+  cp /etc/kubernetes/manifests/kube-apiserver.yaml .
+  yq e '.spec.containers[0].command += "--oidc-issuer-url=https://'$ip'/auth/realms/tmax"' -i ./kube-apiserver.yaml
+  yq e '.spec.containers[0].command += "--oidc-client-id=hypercloud5"' -i ./kube-apiserver.yaml
+  yq e '.spec.containers[0].command += "--oidc-username-claim=preferred_username"' -i ./kube-apiserver.yaml
+  yq e '.spec.containers[0].command += "--oidc-username-prefix=-"' -i ./kube-apiserver.yaml
+  yq e '.spec.containers[0].command += "--oidc-groups-claim=group"' -i ./kube-apiserver.yaml
+  mv -f ./kube-apiserver.yaml /etc/kubernetes/manifests/kube-apiserver.yaml
+
+popd
+
 
 #install hyperauth
 source k8s.config
