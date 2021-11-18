@@ -169,6 +169,64 @@ pushd $HYPERAUTH_HOME
 popd
 
 
+#install hyperauth
+source k8s.config
+set -x
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+HYPERAUTH_HOME=$SCRIPTDIR/yaml/hyperauth
+
+pushd $HYPERAUTH_HOME
+
+  sed -i 's/POSTGRES_VERSION/'${POSTGRES_VERSION}'/g' 1.initialization.yaml
+  sed -i 's/HYPERAUTH_VERSION/'${HYPERAUTH_VERSION}'/g' 3.hyperauth_deployment.yaml
+
+  # step0 install cert-manager v1.5.4 & tmaxcloud-ca clusterissuer
+  yum install -y sshpass
+  kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.4/cert-manager.yaml
+  kubectl apply -f tmaxcloud-issuer.yaml
+
+  # step1 1.initialization.yaml
+  kubectl apply -f 1.initialization.yaml
+  sleep 60
+
+  # step2 Generate Certs for hyperauth
+  export ip=`kubectl describe service hyperauth -n hyperauth | grep 'LoadBalancer Ingress' | cut -d ' ' -f7`
+  sed -i 's/HYPERAUTH_EXTERNAL_IP/'$ip'/g' 2.hyperauth_certs.yaml
+  kubectl apply -f 2.hyperauth_certs.yaml
+  sleep 5
+
+  kubectl get secret hyperauth-https-secret -n hyperauth -o jsonpath="{['data']['tls\.crt']}" | base64 -d > /etc/kubernetes/pki/hyperauth.crt
+  kubectl get secret hyperauth-https-secret -n hyperauth -o jsonpath="{['data']['ca\.crt']}" | base64 -d > /etc/kubernetes/pki/hypercloud-root-ca.crt
+
+
+  ## send Certs to Another Master Node
+  IFS=' ' read -r -a masters <<< $(kubectl get nodes --selector=node-role.kubernetes.io/master -o jsonpath='{$.items[*].status.addresses[?(@.type=="InternalIP")].address}')
+  for master in "${masters[@]}"
+  do
+      if [ $master == $MAIN_MASTER_IP ]; then
+      continue
+      fi
+      sshpass -p "$MASTER_NODE_ROOT_PASSWORD" scp hypercloud-root-ca.crt ${MASTER_NODE_ROOT_USER}@"$master":/etc/kubernetes/pki/hypercloud-root-ca.crt
+      sshpass -p "$MASTER_NODE_ROOT_PASSWORD" scp hyperauth.crt ${MASTER_NODE_ROOT_USER}@"$master":/etc/kubernetes/pki/hyperauth.crt
+
+  done
+
+  # step3 Hyperauth Deploymennt
+  kubectl apply -f 3.hyperauth_deployment.yaml
+
+
+  # step5 oidc with kubernetes ( modify kubernetes api-server manifest )
+  cp /etc/kubernetes/manifests/kube-apiserver.yaml .
+  yq e '.spec.containers[0].command += "--oidc-issuer-url=https://'$ip'/auth/realms/tmax"' -i ./kube-apiserver.yaml
+  yq e '.spec.containers[0].command += "--oidc-client-id=hypercloud5"' -i ./kube-apiserver.yaml
+  yq e '.spec.containers[0].command += "--oidc-username-claim=preferred_username"' -i ./kube-apiserver.yaml
+  yq e '.spec.containers[0].command += "--oidc-username-prefix=-"' -i ./kube-apiserver.yaml
+  yq e '.spec.containers[0].command += "--oidc-groups-claim=group"' -i ./kube-apiserver.yaml
+  mv -f ./kube-apiserver.yaml /etc/kubernetes/manifests/kube-apiserver.yaml
+
+popd
+
+
 #install hypercloud-operator
 #!/bin/bash
 HYPERCLOUD_API_SERVER_HOME=$SCRIPTDIR/yaml/hypercloud-api-server
@@ -328,95 +386,11 @@ popd
 fi
 
 ### script to install hypercloud-console
-
-CONSOLE_GIT_DIR="https://raw.githubusercontent.com/tmax-cloud/hypercloud-console/hc-release/"
-CONSOLE_GIT_YAML_DIR=$CONSOLE_GIT_DIR"install-yaml/"
-CONSOLE_GIT_TLS_DIR=$CONSOLE_GIT_DIR"tls/"
-
-console_file_initialization="1.initialization.yaml"
-console_file_initialization_temp="1.initialization-temp.yaml"
-console_file_svc_lb="2.svc-lb.yaml"
-console_file_svc_lb_temp="2.svc-lb-temp.yaml"
-console_file_deployment_pod="3.deployment-pod.yaml"
-console_file_deployment_pod_temp="3.deployment-pod-temp.yaml"
-
-mkdir hypercloud-console
-cd hypercloud-console
-
-if [ -z $CONSOLE_VERSION ]; then
-    CONSOLE_VERSION="1.1.26.0"
-fi
-echo "CONSOLE_VERSION = ${CONSOLE_VERSION}"
-
-HC4_IP=$(kubectl get svc -A | grep hypercloud4-operator-service | awk '{print $4}')
-HC4_PORT=$(kubectl get svc -A | grep hypercloud4-operator-service | awk '{print $6}' | awk 'match($0, ":"){print substr($0,1,RSTART-1)}')
-if [ -z $HC4_IP ]; then 
-    echo "Cannot find HC4_IP in hypercloud4-operator-service. Is hypercloud4 operator installed?"
-    HC4_IP="0.0.0.0"
-    HC4_PORT="28677"
-    echo "HC4_IP dummy value temporarily set to $HC4_IP:$HC4_PORT."
-fi 
-HC4=${HC4_IP}:${HC4_PORT}
-echo "Hypercloud Addr = ${HC4}"
-
-PROM_IP=$(kubectl get svc -A | grep prometheus-k8s | awk '{print $4}')
-PROM_PORT=$(kubectl get svc -A | grep prometheus-k8s | awk '{print $6}' | awk 'match($0, ":"){print substr($0,1,RSTART-1)}')
-if [ -z $PROM_IP ]; then 
-    echo "Cannot find PROMETHEUS_IP in prometheus-k8s. Is prometheus installed?"
-    PROM_IP="0.0.0.0"
-    PROM_PORT="9090"
-    echo "PROMETHEUS_IP dummy value temporarily set to $PROM_IP:$PROM_PORT."
-fi 
-PROM=${PROM_IP}:${PROM_PORT}
-echo "Prometheus Addr = ${PROM}"
-
-wget $CONSOLE_GIT_YAML_DIR$console_file_initialization
-wget $CONSOLE_GIT_YAML_DIR$console_file_svc_lb
-wget $CONSOLE_GIT_YAML_DIR$console_file_deployment_pod
-
-cp $console_file_initialization $console_file_initialization_temp
-cp $console_file_svc_lb $console_file_svc_lb_temp
-cp $console_file_deployment_pod $console_file_deployment_pod_temp
-
-mkdir tls
-cd tls
-wget $CONSOLE_GIT_TLS_DIR"tls.crt"
-wget $CONSOLE_GIT_TLS_DIR"tls.key"
-cd ..
-
-sed -i "s%@@NAME_NS@@%console-system%g" ${console_file_initialization_temp}
-sed -i "s%@@NAME_NS@@%console-system%g" ${console_file_svc_lb_temp}
-sed -i "s%@@NAME_NS@@%console-system%g" ${console_file_deployment_pod_temp}
-sed -i "s%@@HC4@@%${HC4}%g" ${console_file_deployment_pod_temp}
-sed -i "s%@@PROM@@%${PROM}%g" ${console_file_deployment_pod_temp}
-sed -i "s%@@VER@@%${CONSOLE_VERSION}%g" ${console_file_deployment_pod_temp}
-sed -i '/--hdc-mode=/d' ${console_file_deployment_pod_temp}
-sed -i '/--tmaxcloud-portal=/d' ${console_file_deployment_pod_temp}
-
-kubectl create -f ${console_file_initialization_temp}
-kubectl create secret tls console-https-secret --cert=tls/tls.crt --key=tls/tls.key -n console-system
-kubectl create -f ${console_file_svc_lb_temp}
-kubectl create -f ${console_file_deployment_pod_temp}
-
-count=0
-stop=60 
-while :
-do
-    sleep 1
-    count=$(($count+1))
-    echo "Waiting for $count sec(s)..."
-    kubectl get po -n console-system
-    RUNNING_FLAG=$(kubectl get po -n console-system | grep console | awk '{print $3}')
-    if [ ${RUNNING_FLAG} == "Running" ]; then
-        echo "Console has been successfully deployed."
-        break 
-    fi
-    if [ $count -eq $stop ]; then 
-        echo "It seems that something went wrong! Check the log."
-        kubectl logs -n console-system $(kubectl get po -n console-system | grep console | awk '{print $1}') 
-        break
-    fi
-done
+HYPERAUTH_IP=$ip
+CONSOLE_HOME=$SCRIPTDIR/yaml/console/
+sudo sed -i 's#{HYPERAUTH_IP}#'${HYPERAUTH_IP}'#g'  ${CONSOLE_HOME}/console.config
+.${CONSOLE_HOME}/installer.sh install
+sudo sed -i 's'${HYPERAUTH_IP}'##{HYPERAUTH_IP}#g'  ${CONSOLE_HOME}/console.config
 
 cd ..
 
