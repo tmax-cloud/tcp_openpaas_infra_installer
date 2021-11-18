@@ -124,7 +124,8 @@ pushd $HYPERAUTH_HOME
 
   # step0 install cert-manager v1.5.4 & tmaxcloud-ca clusterissuer
   wget https://cbs.centos.org/kojifiles/packages/sshpass/1.06/8.el8/x86_64/sshpass-1.06-8.el8.x86_64.rpm
-  dnf install -y ./sshpass-1.06-8.el8.x86_64.rpm  kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.4/cert-manager.yaml
+  dnf install -y ./sshpass-1.06-8.el8.x86_64.rpm  
+  kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.4/cert-manager.yaml
   sleep 20
   kubectl apply -f tmaxcloud-issuer.yaml
 
