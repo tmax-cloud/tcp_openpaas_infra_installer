@@ -123,8 +123,8 @@ pushd $HYPERAUTH_HOME
   sed -i 's/HYPERAUTH_VERSION/'${HYPERAUTH_VERSION}'/g' 3.hyperauth_deployment.yaml
 
   # step0 install cert-manager v1.5.4 & tmaxcloud-ca clusterissuer
-  yum install -y sshpass
-  kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.4/cert-manager.yaml
+  wget https://cbs.centos.org/kojifiles/packages/sshpass/1.06/8.el8/x86_64/sshpass-1.06-8.el8.x86_64.rpm
+  dnf install -y ./sshpass-1.06-8.el8.x86_64.rpm  kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.4/cert-manager.yaml
   sleep 20
   kubectl apply -f tmaxcloud-issuer.yaml
 
@@ -168,66 +168,6 @@ pushd $HYPERAUTH_HOME
   mv -f ./kube-apiserver.yaml /etc/kubernetes/manifests/kube-apiserver.yaml
 
 popd
-
-
-#install hyperauth
-source k8s.config
-set -x
-SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-HYPERAUTH_HOME=$SCRIPTDIR/yaml/hyperauth
-
-pushd $HYPERAUTH_HOME
-
-  sed -i 's/POSTGRES_VERSION/'${POSTGRES_VERSION}'/g' 1.initialization.yaml
-  sed -i 's/HYPERAUTH_VERSION/'${HYPERAUTH_VERSION}'/g' 3.hyperauth_deployment.yaml
-
-  # step0 install cert-manager v1.5.4 & tmaxcloud-ca clusterissuer
-  wget https://cbs.centos.org/kojifiles/packages/sshpass/1.06/8.el8/x86_64/sshpass-1.06-8.el8.x86_64.rpm
-  dnf install -y ./sshpass-1.06-8.el8.x86_64.rpm
-  kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.4/cert-manager.yaml
-  kubectl apply -f tmaxcloud-issuer.yaml
-
-  # step1 1.initialization.yaml
-  kubectl apply -f 1.initialization.yaml
-  sleep 60
-
-  # step2 Generate Certs for hyperauth
-  export ip=`kubectl describe service hyperauth -n hyperauth | grep 'LoadBalancer Ingress' | cut -d ' ' -f7`
-  sed -i 's/HYPERAUTH_EXTERNAL_IP/'$ip'/g' 2.hyperauth_certs.yaml
-  kubectl apply -f 2.hyperauth_certs.yaml
-  sleep 5
-
-  kubectl get secret hyperauth-https-secret -n hyperauth -o jsonpath="{['data']['tls\.crt']}" | base64 -d > /etc/kubernetes/pki/hyperauth.crt
-  kubectl get secret hyperauth-https-secret -n hyperauth -o jsonpath="{['data']['ca\.crt']}" | base64 -d > /etc/kubernetes/pki/hypercloud-root-ca.crt
-
-
-  ## send Certs to Another Master Node
-  IFS=' ' read -r -a masters <<< $(kubectl get nodes --selector=node-role.kubernetes.io/master -o jsonpath='{$.items[*].status.addresses[?(@.type=="InternalIP")].address}')
-  for master in "${masters[@]}"
-  do
-      if [ $master == $MAIN_MASTER_IP ]; then
-      continue
-      fi
-      sshpass -p "$MASTER_NODE_ROOT_PASSWORD" scp hypercloud-root-ca.crt ${MASTER_NODE_ROOT_USER}@"$master":/etc/kubernetes/pki/hypercloud-root-ca.crt
-      sshpass -p "$MASTER_NODE_ROOT_PASSWORD" scp hyperauth.crt ${MASTER_NODE_ROOT_USER}@"$master":/etc/kubernetes/pki/hyperauth.crt
-
-  done
-
-  # step3 Hyperauth Deploymennt
-  kubectl apply -f 3.hyperauth_deployment.yaml
-
-
-  # step5 oidc with kubernetes ( modify kubernetes api-server manifest )
-  cp /etc/kubernetes/manifests/kube-apiserver.yaml .
-  yq e '.spec.containers[0].command += "--oidc-issuer-url=https://'$ip'/auth/realms/tmax"' -i ./kube-apiserver.yaml
-  yq e '.spec.containers[0].command += "--oidc-client-id=hypercloud5"' -i ./kube-apiserver.yaml
-  yq e '.spec.containers[0].command += "--oidc-username-claim=preferred_username"' -i ./kube-apiserver.yaml
-  yq e '.spec.containers[0].command += "--oidc-username-prefix=-"' -i ./kube-apiserver.yaml
-  yq e '.spec.containers[0].command += "--oidc-groups-claim=group"' -i ./kube-apiserver.yaml
-  mv -f ./kube-apiserver.yaml /etc/kubernetes/manifests/kube-apiserver.yaml
-
-popd
-
 
 #install hypercloud-operator
 #!/bin/bash
