@@ -87,13 +87,13 @@ Install hyperauth, hypercloud-operator, hypercloud-single-server, hypercloud-api
 
 ### Prerequisite
 
-- kubectl (>= 1.17)
+- kubectl (>= 1.22)
 - kubernetes Cluster
 - `lvm2` package (should be installed on storage node)
 
 ### Default installed version
 
-- Rook-Ceph v1.4.2
+- Rook-Ceph v1.7.6
 
 ### Getting Started
 
@@ -107,20 +107,13 @@ Install hyperauth, hypercloud-operator, hypercloud-single-server, hypercloud-api
   - `./myInventory/rook/*.yaml` are yaml files for Rook-Ceph installation
 - Please note that all the generated yamls are just for example. Go through each files and change values to suit your host environment
   - **Do not modify the name of folders and files.**
-  - Take a look at [rook documentation](https://rook.github.io/docs/rook/v1.4/ceph-cluster-crd.html) before modify each fields under `./myInventory/rook/` path
+  - Take a look at [rook documentation](https://rook.github.io/docs/rook/v1.7/ceph-cluster-crd.html) before modify each fields under `./myInventory/rook/` path
 - After modifying the inventory files to suit the environment, install hypercloud-storage with hcsctl
    ``` shell
    $ hcsctl install {$inventory_name}
    # Ex) hcsctl install myInventory
    ```
     - After installation is completed, you can use HyperCloud Block Storage and Shared Filesystem.
-- Verify if hypercloud-storage is installed completely with `rook.test` command
-    ``` shell
-    $ rook.test
-    ```
-  - This command will execute various test cases to verify that hypercloud-storage is installed properly
-  - It will take up to 15 minutes to complete the test
-
 
 ### Uninstall
 
@@ -151,12 +144,10 @@ $ hcsctl ceph exec ceph df
 - This project has been verified in the following versions.
     - Kubernetes
         - `kubectl` version compatible with each kubernetes server version is required.
-        - v1.19
-        - v1.18        
-        - v1.17
-        - v1.16
-        - v1.15
+        - v1.22
+        - v1.21
+        - v1.20
     - OS
-        - Ubuntu 18.04
-        - CentOS 8.1, 7.7
+        - Ubuntu 20.04, 18.04
+        - CentOS 8.5, 8.1, 7.7
         - ProLinux 7.5
