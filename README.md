@@ -75,7 +75,12 @@ Install Kubernetes and CRI-O
     ./k8s_uninstall.sh
     ./k8s_node_install.sh
     ```
-
+### Install HyperCloud application
+Install hyperauth, hypercloud-operator, hypercloud-single-server, hypercloud-api-server and hypercloud-multi-server.
+1. Execute installer script in master node
+    ```
+    ./hypercloud_app_install.sh
+    ```
 ## HyperCloud Storage (hcsctl)
 
 `hcsctl` provides installation, removal and management of HyperCloud Storage.
