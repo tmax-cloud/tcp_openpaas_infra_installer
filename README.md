@@ -150,4 +150,4 @@ $ hcsctl ceph exec ceph df
     - OS
         - Ubuntu 20.04, 18.04
         - CentOS 8.5, 8.1, 7.7
-        - ProLinux 7.5
+        - ProLinux 7.5, 8.2
