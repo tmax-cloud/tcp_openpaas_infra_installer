@@ -87,7 +87,7 @@ Install hyperauth, hypercloud-operator, hypercloud-single-server, hypercloud-api
 
 ### Prerequisite
 
-- kubectl (>= 1.22)
+- kubectl (>= 1.20)
 - kubernetes Cluster
 - `lvm2` package (should be installed on storage node)
 
