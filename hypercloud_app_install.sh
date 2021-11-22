@@ -60,7 +60,7 @@ pushd $HYPERAUTH_HOME
   yq e '.spec.containers[0].command += "--oidc-username-prefix=-"' -i ./kube-apiserver.yaml
   yq e '.spec.containers[0].command += "--oidc-groups-claim=group"' -i ./kube-apiserver.yaml
   mv -f ./kube-apiserver.yaml /etc/kubernetes/manifests/kube-apiserver.yaml
-
+  sleep 20
 popd
 
 #install hypercloud-operator
