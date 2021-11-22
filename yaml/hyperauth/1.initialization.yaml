@@ -42,7 +42,7 @@ metadata:
   labels:
     app: postgresql
 spec:
-  #storageClassName: csi-cephfs-sc
+  storageClassName: csi-cephfs-sc
   accessModes:
     - ReadWriteOnce
   resources:
@@ -57,7 +57,7 @@ metadata:
   labels:
     hyperauth: log
 spec:
-  #storageClassName: csi-cephfs-sc
+  storageClassName: csi-cephfs-sc
   accessModes:
     - ReadWriteMany
   resources:
@@ -73,7 +73,7 @@ metadata:
   labels:
     app: hyperauth
 spec:
-  #storageClassName: csi-cephfs-sc
+  storageClassName: csi-cephfs-sc
   accessModes:
     - ReadWriteMany
   resources:
