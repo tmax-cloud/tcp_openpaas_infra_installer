@@ -24,7 +24,7 @@ pushd $HYPERAUTH_HOME
   sleep 60
 
   # step2 Generate Certs for hyperauth
-  export ip=`kubectl describe service hyperauth -n hyperauth | grep 'LoadBalancer Ingress' | cut -d ' ' -f7`
+  export ip=`kubectl get node -owide | awk '{print $6}' | sed -n 2p`
   sed -i 's/HYPERAUTH_EXTERNAL_IP/'$ip'/g' 2.hyperauth_certs.yaml
   kubectl apply -f 2.hyperauth_certs.yaml
   sleep 5
@@ -51,7 +51,7 @@ pushd $HYPERAUTH_HOME
 
   # step5 oidc with kubernetes ( modify kubernetes api-server manifest )
   cp /etc/kubernetes/manifests/kube-apiserver.yaml .
-  yq e '.spec.containers[0].command += "--oidc-issuer-url=https://'$ip'/auth/realms/tmax"' -i ./kube-apiserver.yaml
+  yq e '.spec.containers[0].command += "--oidc-issuer-url=https://'$ip':31301/auth/realms/tmax"' -i ./kube-apiserver.yaml
   yq e '.spec.containers[0].command += "--oidc-client-id=hypercloud5"' -i ./kube-apiserver.yaml
   yq e '.spec.containers[0].command += "--oidc-username-claim=preferred_username"' -i ./kube-apiserver.yaml
   yq e '.spec.containers[0].command += "--oidc-username-prefix=-"' -i ./kube-apiserver.yaml
