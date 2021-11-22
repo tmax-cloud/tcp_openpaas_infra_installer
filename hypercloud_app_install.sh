@@ -219,7 +219,7 @@ popd
 fi
 
 ### script to install hypercloud-console
-HYPERAUTH_IP=$ip
+HYPERAUTH_IP="hyperauth.hyperauth.svc"
 CONSOLE_HOME=$SCRIPTDIR/yaml/console/
 sudo sed -i 's#{HYPERAUTH_IP}#'${HYPERAUTH_IP}'#g'  ${CONSOLE_HOME}/console.config
 .${CONSOLE_HOME}/installer.sh install
