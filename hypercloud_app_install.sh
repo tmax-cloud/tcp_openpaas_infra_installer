@@ -11,7 +11,7 @@ pushd $HYPERAUTH_HOME
 
   sed -i 's/POSTGRES_VERSION/'${POSTGRES_VERSION}'/g' 1.initialization.yaml
   sed -i 's/HYPERAUTH_VERSION/'${HYPERAUTH_VERSION}'/g' 3.hyperauth_deployment.yaml
-
+  
   # step0 install yum, cert-manager v1.5.4 & tmaxcloud-ca clusterissuer
   wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /usr/bin/yq &&
   chmod +x /usr/bin/yq
@@ -22,6 +22,7 @@ pushd $HYPERAUTH_HOME
   kubectl apply -f tmaxcloud-issuer.yaml
 
   # step1 1.initialization.yaml
+  kubectl patch storageclass csi-cephfs-sc -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
   kubectl apply -f 1.initialization.yaml
   sleep 60
 
