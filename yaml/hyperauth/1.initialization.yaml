@@ -160,13 +160,15 @@ spec:
   ports:
   - name: http
     port: 8080
+    nodePort: 31300
     targetPort: 8080
   - name: https
     port: 443
+    nodePort: 31301
     targetPort: 8443
   selector:
     app: hyperauth
-  type: LoadBalancer   # ClusterIP or LoadBalancer or NodePort
+  type: NodePort   # ClusterIP or LoadBalancer or NodePort
 
 
 ---
