@@ -12,7 +12,9 @@ pushd $HYPERAUTH_HOME
   sed -i 's/POSTGRES_VERSION/'${POSTGRES_VERSION}'/g' 1.initialization.yaml
   sed -i 's/HYPERAUTH_VERSION/'${HYPERAUTH_VERSION}'/g' 3.hyperauth_deployment.yaml
 
-  # step0 install cert-manager v1.5.4 & tmaxcloud-ca clusterissuer
+  # step0 install yum, cert-manager v1.5.4 & tmaxcloud-ca clusterissuer
+  wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /usr/bin/yq &&
+  chmod +x /usr/bin/yq
   wget https://cbs.centos.org/kojifiles/packages/sshpass/1.06/8.el8/x86_64/sshpass-1.06-8.el8.x86_64.rpm
   dnf install -y ./sshpass-1.06-8.el8.x86_64.rpm
   kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.4/cert-manager.yaml
