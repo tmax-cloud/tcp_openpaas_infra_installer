@@ -11,27 +11,6 @@ spec:
   selector:
     hypercloud5: api-server
   type: ClusterIP
-  
----
-
-#apiVersion: extensions/v1beta1
-#kind: Ingress
-#metadata:
-#  name: hypercloud-api-server-ingress
-#  namespace: hypercloud5-system
-#  annotations:
-#    nginx.ingress.kubernetes.io/rewrite-target: "/audit/$2"
-#    kubernetes.io/ingress.class: "nginx-shd"
-#    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-#spec:
-#  rules:
-#  - host: {INGRESS_SVCURL}
-#    http:
-#      paths:
-#      - path: /audit(/|$)(.*)
-#        backend:
-#          serviceName: hypercloud5-api-server-service
-#          servicePort: 443
 
 ---
 
@@ -71,6 +50,8 @@ spec:
               value: "x509ignoreCN=0"  
             - name: SIDECAR_IMAGE
               value: "fluent/fluent-bit:1.5-debug"
+            - name: KAFKA_ENABLED
+              value: "{KAFKA_ENABLED}"
             - name: KAFKA_GROUP_ID
               value: {KAFKA_GROUP_ID}
             - name : kafka1_addr
@@ -95,6 +76,7 @@ spec:
             subPath: version.config
           - name: kafka
             mountPath: /go/src/etc/ssl
+            readOnly: true
           - name: hypercloud5-api-server-certs
             mountPath: /run/secrets/tls
             readOnly: true
