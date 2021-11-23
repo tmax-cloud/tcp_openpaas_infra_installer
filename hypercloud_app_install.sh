@@ -151,6 +151,8 @@ sudo yq e 'del(.spec.dnsPolicy)' -i kube-apiserver.yaml
 sudo yq e '.spec.dnsPolicy += "ClusterFirstWithHostNet"' -i kube-apiserver.yaml
 sudo mv -f ./kube-apiserver.yaml /etc/kubernetes/manifests/kube-apiserver.yaml
 
+# waiting 10s for running api-server correctly
+sleep 10
 ### script to install hypercloud-console
 HYPERAUTH_IP="hyperauth.hyperauth.svc"
 CONSOLE_HOME=$SCRIPTDIR/yaml/console
