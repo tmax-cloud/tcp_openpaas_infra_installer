@@ -13,7 +13,7 @@ pushd $HYPERAUTH_HOME
   sed -i 's/HYPERAUTH_VERSION/'${HYPERAUTH_VERSION}'/g' 3.hyperauth_deployment.yaml
   
   # step0 install yum, cert-manager v1.5.4 & tmaxcloud-ca clusterissuer
-  wget https://github.com/mikefarah/yq/releases/download/v4.2.0/yq_linux_amd64 -O /usr/bin/yq &&
+  wget https://github.com/mikefarah/yq/releases/download/v4.5.0/yq_linux_amd64 -O /usr/bin/yq &&
   chmod +x /usr/bin/yq
   wget https://cbs.centos.org/kojifiles/packages/sshpass/1.06/8.el8/x86_64/sshpass-1.06-8.el8.x86_64.rpm
   dnf install -y ./sshpass-1.06-8.el8.x86_64.rpm
