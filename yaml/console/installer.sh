@@ -148,7 +148,7 @@ function install(){
   TRIAL=1
   while true; do
     echo "Trial $TRIAL..."
-    sleep 3s
+    sleep 10s
     TRIAL=$((TRIAL+1))
     kubectl -n "${NAMESPACE}" get po -l app=console
     RUNNING_FLAG=$(kubectl get po -n ${NAMESPACE} -l app=console | grep console | awk '{print $3}')
@@ -159,7 +159,7 @@ function install(){
       URL=$(kubectl get svc -n "${NAMESPACE}" | awk '{print $4}' | tail -1)
       echo " Access URL is ${URL}"
       break
-    elif [[ ${TRIAL} == 20 ]]; then
+    elif [[ ${TRIAL} == 30 ]]; then
       echo "Failed to Install Console, Something is wrong"
       break
     fi
