@@ -154,7 +154,7 @@ sudo mv -f ./kube-apiserver.yaml /etc/kubernetes/manifests/kube-apiserver.yaml
 # waiting 10s for running api-server correctly
 sleep 10
 ### script to install hypercloud-console
-HYPERAUTH_IP='$ip':31301
+HYPERAUTH_IP=$ip:31301
 CONSOLE_HOME=$SCRIPTDIR/yaml/console
 sudo sed -i 's/{HYPERAUTH_IP}/'${HYPERAUTH_IP}'/g' ${CONSOLE_HOME}/console.config
 ${CONSOLE_HOME}/installer.sh install
