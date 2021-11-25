@@ -146,7 +146,7 @@ $ hcsctl ceph exec ceph df
         - CentOS 8.5, 8.1, 7.7
         - ProLinux 7.5, 8.2
 
-## HyperCloud app
+## HyperCloud App
 
 ### Install HyperCloud application
 Install hyperauth, hypercloud-operator, hypercloud-operator, hypercloud-console
