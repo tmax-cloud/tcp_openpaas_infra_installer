@@ -38,7 +38,7 @@ systemctl disable firewalld
 #swapoff
 swapoff -a
 #sed s/\\/dev\\/mapper\\/centos-swap/#\ \\/dev\\/mapper\\/centos-swap/g -i /etc/fstab
-sed s/#\ \\/dev\\/mapper\\/cl_cncf--node2-swap/#\\/dev\\/mapper\\/cl_cncf--node2-swap/g -i /etc/fstab
+sed s/\\/dev\\/mapper/#\\/dev\\/mapper/g -i /etc/fstab
 
 #selinux mode
 setenforce 0
