@@ -135,6 +135,9 @@ pushd $HYPERCLOUD_API_SERVER_HOME
   kubectl apply -f  04_default-role.yaml
 popd
 
+# waiting for running hypercloud-api-server correctly
+kubectl wait --for=condition=ready pod --timeout=-3m -l hypercloud5=api-server -n hypercloud5-system
+
 #  step 4 - create and apply config
 pushd $HYPERCLOUD_API_SERVER_HOME/config
   sudo chmod +x *.sh
@@ -152,8 +155,25 @@ sudo yq e 'del(.spec.dnsPolicy)' -i kube-apiserver.yaml
 sudo yq e '.spec.dnsPolicy += "ClusterFirstWithHostNet"' -i kube-apiserver.yaml
 sudo mv -f ./kube-apiserver.yaml /etc/kubernetes/manifests/kube-apiserver.yaml
 
-# waiting 10s for running api-server correctly
-sleep 10
+# waiting for running kube-api-server correctly
+set +e
+for ((i=0; i<31; i++))
+do
+  kubectl wait  --for=condition=ready pod --timeout=-3m -l component=kube-apiserver -n kube-system
+  is_success=`echo $?`
+  if [ $is_success == 0 ]; then
+    break
+  elif [ $i == 10 ]; then
+    echo "Timeout Error"
+    exit 1
+  else
+    echo "Waiting for kube-apiserver pod to be ready"
+    sleep 10s
+  fi
+done
+echo "kube-apiserver pod is ready"
+set -e
+
 ### script to install hypercloud-console
 HYPERAUTH_IP=$ip:31301
 CONSOLE_HOME=$SCRIPTDIR/yaml/console
