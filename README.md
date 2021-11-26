@@ -75,12 +75,6 @@ Install Kubernetes and CRI-O
     ./k8s_uninstall.sh
     ./k8s_node_install.sh
     ```
-### Install HyperCloud application
-Install hyperauth, hypercloud-operator, hypercloud-single-server, hypercloud-api-server and hypercloud-multi-server.
-1. Execute installer script in master node
-    ```
-    ./hypercloud_app_install.sh
-    ```
 ## HyperCloud Storage (hcsctl)
 
 `hcsctl` provides installation, removal and management of HyperCloud Storage.
@@ -151,3 +145,20 @@ $ hcsctl ceph exec ceph df
         - Ubuntu 20.04, 18.04
         - CentOS 8.5, 8.1, 7.7
         - ProLinux 7.5, 8.2
+
+## HyperCloud App
+
+### Install HyperCloud application
+Install hyperauth, hypercloud-operator, hypercloud-operator, hypercloud-console
+1. Modify k8s.config to suit your environ
+    * MAIN_MASTER_IP : Your master node's ip address
+      * ex : MAIN_MASTER_IP=172.21.7.7
+    * MASTER_NODE_ROOT_PASSWORD : Your master node's root password
+      * ex : MASTER_NODE_ROOT_PASSWORD=1234
+    * MASTER_NODE_ROOT_USER : Your master node's root user
+      * ex : Your master node's root password=root
+
+2. Execute installer script in master node
+    ```
+    ./hypercloud_app_install.sh
+    ```
