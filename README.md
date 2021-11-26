@@ -157,6 +157,9 @@ Install hyperauth, hypercloud-operator, hypercloud-operator, hypercloud-console
       * ex : MASTER_NODE_ROOT_PASSWORD=1234
     * MASTER_NODE_ROOT_USER : Your master node's root user
       * ex : Your master node's root password=root
+    * HYPERAUTH_VERSION : Hyperauth server version 
+      * ref : https://hub.docker.com/r/tmaxcloudck/hyperauth
+      * ex : latest
 
 2. Execute installer script in master node
     ```
