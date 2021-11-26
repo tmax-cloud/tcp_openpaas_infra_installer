@@ -43,23 +43,23 @@ spec:
             - name: TZ
               value: "Asia/Seoul"
             - name: HC_MODE
-              value: {HPCD_MODE} # multi / single 
+              value: single # multi / single 
             - name: INVITATION_TOKEN_EXPIRED_DATE
-              value: {INVITATION_TOKEN_EXPIRED_DATE} # multi / single 
+              value: 7days 
             - name: GODEBUG
               value: "x509ignoreCN=0"  
             - name: SIDECAR_IMAGE
               value: "fluent/fluent-bit:1.5-debug"
             - name: KAFKA_ENABLED
-              value: "{KAFKA_ENABLED}"
+              value: "false"
             - name: KAFKA_GROUP_ID
               value: {KAFKA_GROUP_ID}
             - name : kafka1_addr
-              value: {KAFKA1_ADDR}
+              value: DNS
             - name : kafka2_addr
-              value: {KAFKA2_ADDR}
+              value: DNS
             - name : kafka3_addr
-              value: {KAFKA3_ADDR}
+              value: DNS
           ports:
           - containerPort: 443
             name: https 

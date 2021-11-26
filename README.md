@@ -149,8 +149,8 @@ $ hcsctl ceph exec ceph df
 ## HyperCloud App
 
 ### Install HyperCloud application
-Install hyperauth, hypercloud-operator, hypercloud-operator, hypercloud-console
-1. Modify k8s.config to suit your environ
+Install hyperauth, hypercloud-api-server, hypercloud-single-operator, hypercloud-console
+1. Modify k8s.config to suit your environment
     * MAIN_MASTER_IP : Your master node's ip address
       * ex : MAIN_MASTER_IP=172.21.7.7
     * MASTER_NODE_ROOT_PASSWORD : Your master node's root password

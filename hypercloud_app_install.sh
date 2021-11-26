@@ -64,15 +64,11 @@ pushd $HYPERAUTH_HOME
   sleep 20
 popd
 
-#install hypercloud
+#install hypercloud-api-server & hypercloud-single-operator
 #!/bin/bash
 HYPERCLOUD_API_SERVER_HOME=$SCRIPTDIR/yaml/hypercloud-api-server
 HYPERCLOUD_SINGLE_OPERATOR_HOME=$SCRIPTDIR/yaml/hypercloud-single-operator
-HYPERCLOUD_MULTI_OPERATOR_HOME=$SCRIPTDIR/yaml/hypercloud-multi-operator
-HYPERCLOUD_MULTI_AGENT_HOME=$SCRIPTDIR/yaml/hypercloud-multi-agent
 source $SCRIPTDIR/k8s.config
-KUSTOMIZE_VERSION=${KUSTOMIZE_VERSION:-"v3.8.5"}
-YQ_VERSION=${YQ_VERSION:-"v4.5.0"}
 KA_YAML=`sudo yq e '.spec.containers[0].command' /etc/kubernetes/manifests/kube-apiserver.yaml`
 HYPERAUTH_URL=`echo "${KA_YAML#*--oidc-issuer-url=}" | tr -d '\12' | cut -d '-' -f1`
 set -xe
@@ -109,21 +105,8 @@ if [ $REGISTRY != "{REGISTRY}" ]; then
   sudo sed -i 's#tmaxcloudck/hypercloud-api-server#'${REGISTRY}'/tmaxcloudck/hypercloud-api-server#g' ${HYPERCLOUD_API_SERVER_HOME}/03_hypercloud-api-server.yaml
   sudo sed -i 's#tmaxcloudck/postgres-cron#'${REGISTRY}'/tmaxcloudck/postgres-cron#g' ${HYPERCLOUD_API_SERVER_HOME}/02_postgres-create.yaml
 fi
-if [ $KAFKA1_ADDR != "{KAFKA1_ADDR}" ] && [ $KAFKA2_ADDR != "{KAFKA2_ADDR}" ] && [ $KAFKA3_ADDR != "{KAFKA3_ADDR}" ]; then
-  sudo sed -i 's/{KAFKA1_ADDR}/'${KAFKA1_ADDR}'/g'  ${HYPERCLOUD_API_SERVER_HOME}/03_hypercloud-api-server.yaml
-  sudo sed -i 's/{KAFKA2_ADDR}/'${KAFKA2_ADDR}'/g'  ${HYPERCLOUD_API_SERVER_HOME}/03_hypercloud-api-server.yaml
-  sudo sed -i 's/{KAFKA3_ADDR}/'${KAFKA3_ADDR}'/g'  ${HYPERCLOUD_API_SERVER_HOME}/03_hypercloud-api-server.yaml
-else
-  sudo sed -i 's/{KAFKA1_ADDR}/'DNS'/g'  ${HYPERCLOUD_API_SERVER_HOME}/03_hypercloud-api-server.yaml
-  sudo sed -i 's/{KAFKA2_ADDR}/'DNS'/g'  ${HYPERCLOUD_API_SERVER_HOME}/03_hypercloud-api-server.yaml
-  sudo sed -i 's/{KAFKA3_ADDR}/'DNS'/g'  ${HYPERCLOUD_API_SERVER_HOME}/03_hypercloud-api-server.yaml
-fi
 sudo sed -i 's/{HPCD_API_SERVER_VERSION}/b'${HPCD_API_SERVER_VERSION}'/g'  ${HYPERCLOUD_API_SERVER_HOME}/03_hypercloud-api-server.yaml
-sudo sed -i 's/{HPCD_MODE}/'${HPCD_MODE}'/g'  ${HYPERCLOUD_API_SERVER_HOME}/03_hypercloud-api-server.yaml
 sudo sed -i 's/{HPCD_POSTGRES_VERSION}/b'${HPCD_POSTGRES_VERSION}'/g'  ${HYPERCLOUD_API_SERVER_HOME}/02_postgres-create.yaml
-sudo sed -i 's/{INVITATION_TOKEN_EXPIRED_DATE}/'${INVITATION_TOKEN_EXPIRED_DATE}'/g'  ${HYPERCLOUD_API_SERVER_HOME}/02_postgres-create.yaml
-sudo sed -i 's/{INVITATION_TOKEN_EXPIRED_DATE}/'${INVITATION_TOKEN_EXPIRED_DATE}'/g'  ${HYPERCLOUD_API_SERVER_HOME}/03_hypercloud-api-server.yaml
-sudo sed -i 's/{KAFKA_ENABLED}/'${KAFKA_ENABLED}'/g' ${HYPERCLOUD_API_SERVER_HOME}/03_hypercloud-api-server.yaml
 sudo sed -i 's/{KAFKA_GROUP_ID}/'hypercloud-api-server-$HOSTNAME-$(($RANDOM%100))'/g' ${HYPERCLOUD_API_SERVER_HOME}/03_hypercloud-api-server.yaml
 sudo sed -i 's#{HYPERAUTH_URL}#'${HYPERAUTH_URL}'#g'  ${HYPERCLOUD_API_SERVER_HOME}/01_init.yaml
 
