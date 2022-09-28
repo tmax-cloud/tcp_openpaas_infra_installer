@@ -3,6 +3,7 @@
 ## HyperCloud Infra
 ### Prerequisites
 - CentOS 8
+- CentOS Stream 9
 
 ### Setup master node
 Install Kubernetes, CRI-O, Calico and HyperCloud
@@ -18,6 +19,7 @@ Install Kubernetes, CRI-O, Calico and HyperCloud
       * ex : crioVersion=1.18 k8sVersion=1.18.3
       * ex : crioVersion=1.19 k8sVersion=1.19.4
       * ex : crioVersion=1.22 k8sVersion=1.22.2
+      * ex : crioVersion=1.25 k8sVersion=1.25.0
     * `apiServer` : The IP address the API Server will advertise it's listening on.
       * ex : apiServer={Kubernetes master IP}
       * ex : apiServer=172.22.5.2
@@ -25,8 +27,8 @@ Install Kubernetes, CRI-O, Calico and HyperCloud
       * ex : podSubnet={POD_IP_POOL}/{CIDR}
       * ex : podSubnet=10.244.0.0/16
     * `calicoVersion` : calico network plugin version(OPTIONAL)
-      * If nothing is specified, the default version(v3.20) is installed.
-      * ex : calicoVersion=3.20
+      * If nothing is specified, the default version(v3.24.1) is installed.
+      * ex : calicoVersion=3.24.1
 3. Execute installer script
     ```
     ./k8s_master_install.sh
@@ -62,6 +64,7 @@ Install Kubernetes and CRI-O
       * ex : crioVersion=1.18 k8sVersion=1.18.3
       * ex : crioVersion=1.19 k8sVersion=1.19.4
       * ex : crioVersion=1.22 k8sVersion=1.22.2
+      * ex : crioVersion=1.25 k8sVersion=1.25.0
 3. Execute installer script
     ```
     ./k8s_node_install.sh

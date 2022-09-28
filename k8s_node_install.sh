@@ -10,14 +10,14 @@ sudo yum update -y
 #crio repo
 
 if [[ -z ${crioVersion} ]]; then
-  VERSION=1.22
+  VERSION=1.25
 else
   echo crio version
   VERSION=${crioVersion}
 fi
 
-sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/CentOS_8/devel:kubic:libcontainers:stable.repo
-sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:${VERSION}/CentOS_8/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo
+sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable.repo https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_8_Stream/devel:kubic:libcontainers:stable.repo
+sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$VERSION/CentOS_8_Stream/devel:kubic:libcontainers:stable:cri-o:$VERSION.repo
 
 #install crio
 echo install crio
@@ -55,7 +55,7 @@ EOF
 
 #install kubernetes
 if [[ -z ${k8sVersion} ]]; then
-  k8sVersion=1.22.2
+  k8sVersion=1.25.0
 else
   echo k8s version
   k8sVersion=${k8sVersion}
