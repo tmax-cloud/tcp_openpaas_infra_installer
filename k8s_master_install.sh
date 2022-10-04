@@ -1,6 +1,6 @@
 #!/bin/bash
 
-install_dir=$(dirname "$0")
+install_dir=$(dirname $(realpath $0))
 . ${install_dir}/k8s.config
 
 yaml_dir="${install_dir}/yaml"
@@ -20,15 +20,69 @@ fi
 sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable.repo https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_8_Stream/devel:kubic:libcontainers:stable.repo
 sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$VERSION/CentOS_8_Stream/devel:kubic:libcontainers:stable:cri-o:$VERSION.repo
 
-#install crio
-echo install crio
-sudo yum -y install cri-o
-systemctl enable crio
-systemctl start crio
+#CentOS 9 Repo
 
-#remove cni0
-rm -rf /etc/cni/net.d/*
-sed -i 's/\"\/usr\/libexec\/cni\"/\"\/usr\/libexec\/cni\"\,\"\/opt\/cni\/bin\"/g' /etc/crio/crio.conf
+cat <<EOF > /etc/yum.repos.d/CentOS-9-Stream.repo
+[CentOS-9-baseos]
+name=CentOS - 9 - BaseOS
+baseurl=https://rpmfind.net/linux/centos-stream/9-stream/BaseOS/x86_64/os/
+enabled=1
+gpgcheck=0
+
+[CentOS-9-appstream]
+name=CentOS - 9 - AppStream
+baseurl=https://rpmfind.net/linux/centos-stream/9-stream/AppStream/x86_64/os/
+enabled=1
+gpgcheck=0
+
+[CentOS-9-CRB]
+name=CentOS - 9 - CRB
+baseurl=http://rpmfind.net/linux/centos-stream/9-stream/CRB/x86_64/os/
+enabled=1
+gpgcheck=0
+EOF
+
+#install crio build and run dependencies
+yum install -y \
+  containers-common \
+  device-mapper-devel \
+  git \
+  glib2-devel \
+  glibc-devel \
+  glibc-static \
+  go \
+  gpgme-devel \
+  libassuan-devel \
+  libgpg-error-devel \
+  libseccomp-devel \
+  libselinux-devel \
+  pkgconf-pkg-config \
+  make \
+  runc \
+  gcc
+
+#get cri-o source
+git clone https://github.com/cri-o/cri-o
+cd ${install_dir}/cri-o
+git checkout release-${crioVersion}
+
+#build cri-o
+make
+sudo make install
+
+sudo make install.config
+
+#set systemd for cri-o
+sudo make install.systemd
+mkdir /var/lib/crio
+
+# start cri-o
+sudo systemctl daemon-reload
+sudo systemctl enable crio
+sudo systemctl start crio
+
+#Set CNI plugin directory
+sed -i "/Paths to directories where CNI plugin binaries are located/a\plugin_dirs = [\"/opt/cni/bin/\"]" /etc/crio/crio.conf
 systemctl restart crio
 
 #disable firewall
@@ -105,9 +159,9 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 if [[ -z ${calicoVersion} ]]; then
   calicoVersion=3.24.1
   echo calicoVersion=3.24.1
-  kubectl apply -f ${yaml_dir}/calico.yaml
 else
   calicoVersion=${calicoVersion}
-  kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v${calicoVersion}/manifests/calico.yaml
 fi
+
+kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v${calicoVersion}/manifests/calico.yaml
 

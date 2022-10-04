@@ -1,11 +1,18 @@
 #!/bin/bash
 
-install_dir=$(dirname "$0")
+install_dir=$(dirname $(realpath $0))
 . ${install_dir}/k8s.config
 
 yaml_dir="${install_dir}/yaml"
 
-kubectl delete -f ${yaml_dir}/calico.yaml
+if [[ -z ${calicoVersion} ]]; then
+  calicoVersion=3.24.1
+  echo calicoVersion=3.24.1
+else
+  calicoVersion=${calicoVersion}
+fi
+
+kubectl delete -f https://raw.githubusercontent.com/projectcalico/calico/v${calicoVersion}/manifests/calico.yaml
 
 kubeadm reset -f
 
@@ -18,4 +25,11 @@ rm -rf /etc/yum.repos.d/kubernetes.repo
 rm -rf /etc/yum.repos.d/devel\:kubic\:libcontainers\:stable*
 
 yum remove -y kubeadm kubelet kubectl
-yum remove -y crio
+
+systemctl stop crio
+systemctl disable crio
+cd ${install_dir}/cri-o
+make clean
+
+rm -rf ${install_dir}/cri-o
+
