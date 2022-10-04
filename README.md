@@ -2,8 +2,7 @@
 
 ## HyperCloud Infra
 ### Prerequisites
-- CentOS 8
-- CentOS Stream 9
+- HyperLinux 9.0
 
 ### Setup master node
 Install Kubernetes, CRI-O, Calico and HyperCloud
