@@ -167,3 +167,39 @@ Install hyperauth, hypercloud-api-server, hypercloud-single-operator, hypercloud
     ```
     ./hypercloud_app_install.sh
     ```
+
+
+## HyperCloud NFS Storage
+### Prerequisites
+
+- All nodes in the k8s cluster require the  `nfs-utils` package to be installed
+
+### Setup all nodes
+Install nfs packages
+
+1. install nfs-utils packages
+    ```
+    sudo yum install -y nfs-utils
+    ``` 
+
+### Setup master node
+Install NFS-Server, NFS-Provisioning
+
+1. Modify nfs_install.sh 
+
+    - NFS_PATH : NFS directory path
+        - ex : NFS_PATH=/mnt/nfs-shared-dir
+    - If no directory is specified, the default path is /mnt/nfs-shared-dir
+
+2. Execute NFS installer script
+
+    ```
+    ./nfs_install.sh
+    ```
+
+3. Enter Master Node IP after Execute NFS installer script
+
+    ```
+    ./nfs_install.sh
+    Enter Master IP: ex)172.21.7.5
+    ```
