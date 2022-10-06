@@ -163,5 +163,9 @@ else
   calicoVersion=${calicoVersion}
 fi
 
-kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v${calicoVersion}/manifests/calico.yaml
+curl https://raw.githubusercontent.com/projectcalico/calico/v${calicoVersion}/manifests/calico.yaml -o ${install_dir}/calico.yaml
+
+sed -i "s|# - name: CALICO_IPV4POOL_CIDR|- name: CALICO_IPV4POOL_CIDR|g" ${install_dir}/calico.yaml
+sed -i "s|#   value: \"192.168.0.0/16\"|  value: \""${podSubnet}"\"|g" ${install_dir}/calico.yaml
+kubectl apply -f ${install_dir}/calico.yaml
 

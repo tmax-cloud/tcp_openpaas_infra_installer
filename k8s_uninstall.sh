@@ -12,7 +12,7 @@ else
   calicoVersion=${calicoVersion}
 fi
 
-kubectl delete -f https://raw.githubusercontent.com/projectcalico/calico/v${calicoVersion}/manifests/calico.yaml
+kubectl delete -f ${install_dir}/calico.yaml
 
 kubeadm reset -f
 
