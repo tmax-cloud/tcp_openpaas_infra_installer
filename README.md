@@ -89,7 +89,7 @@ Install Kubernetes and CRI-O
 
 ### Default installed version
 
-- Rook-Ceph v1.7.6
+- Rook-Ceph v1.9.10
 
 ### Getting Started
 
@@ -122,8 +122,11 @@ Install Kubernetes and CRI-O
     - You may need additional work to do depends on the message that is displayed when the uninstallation is completed to clean up remaining ceph related data
 
 ### Additional features
-
 - In addition to installation and uninstallation, various additional functions are also provided with hcsctl for convenience
+- You can set default storageclass following commands
+    ```shell
+    kubectl patch storageclass {$storageClassName} -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+    ```
 
 You can execute following ceph commands with hcsctl.
 
@@ -140,10 +143,12 @@ $ hcsctl ceph exec ceph df
 - This project has been verified in the following versions.
     - Kubernetes
         - `kubectl` version compatible with each kubernetes server version is required.
+        - v1.25
         - v1.22
         - v1.21
         - v1.20
     - OS
+        - HyperLinux 9.0
         - Ubuntu 20.04, 18.04
         - CentOS 8.5, 8.1, 7.7
         - ProLinux 7.5, 8.2
