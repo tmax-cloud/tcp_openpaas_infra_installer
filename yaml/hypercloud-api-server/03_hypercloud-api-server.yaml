@@ -58,15 +58,15 @@ spec:
       serviceAccount: hypercloud5-admin
       containers:
         - name: hypercloud5-api-server
-          image: tmaxcloudck/hypercloud-api-server:b5.0.34.1
+          image: tmaxcloudck/hypercloud-api-server:{HPCD_API_SERVER_VERSION}
           imagePullPolicy: IfNotPresent
           args:
-          - --log-level=INFO
+          - --log-level={API_SERVER_LOG_LEVEL}
           env:
             - name: TZ
               value: "Asia/Seoul"
             - name: HC_MODE
-              value: single # multi / single 
+              value: {HPCD_MODE}
             - name: INVITATION_TOKEN_EXPIRED_DATE
               value: 7days
             - name: GODEBUG
@@ -74,9 +74,9 @@ spec:
             - name: SIDECAR_IMAGE
               value: "fluent/fluent-bit:1.5-debug"
             - name: KAFKA_ENABLED
-              value: "false"
+              value: "{KAFKA_ENABLED}"
             - name: KAFKA_GROUP_ID
-              value: hypercloud-api-server-cncf-master-17
+              value: {KAFKA_GROUP_ID}
             - name: HC_DOMAIN
               value: domain.com
             - name: CONSOLE_SUBDOMAIN

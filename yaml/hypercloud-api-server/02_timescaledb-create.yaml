@@ -44,7 +44,7 @@ data:
     SELECT cron.schedule('* * * * *', \$\$DELETE FROM CLUSTER_MEMBER WHERE STATUS = 'pending' AND CREATEDTIME < now() - interval '7days'\$\$);
     CREATE OR REPLACE FUNCTION UPDATE_TIME() RETURNS TRIGGER AS \$\$ BEGIN NEW.updatedtime = NOW(); RETURN NEW; END; \$\$ LANGUAGE plpgsql;
     CREATE TRIGGER TRIGGER_UPDATE_TIME AFTER UPDATE ON CLUSTER_MEMBER FOR EACH ROW EXECUTE PROCEDURE UPDATE_TIME();
-    ALTER SYSTEM SET log_min_messages = WARNING;
+    ALTER SYSTEM SET log_min_messages = {TIMESCALEDB_LOG_LEVEL};
     __SQL__
 kind: ConfigMap
 metadata:
@@ -833,7 +833,7 @@ spec:
               containerName: timescaledb
               divisor: 1Mi
               resource: limits.memory
-        image: tmaxcloudck/timescaledb-cron:b5.0.0.0
+        image: tmaxcloudck/timescaledb-cron:{HPCD_TIMESCALEDB_VERSION}
         imagePullPolicy: IfNotPresent
         name: tstune
         resources:
