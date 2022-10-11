@@ -30,7 +30,7 @@ pushd $HYPERAUTH_HOME
   export ip=`kubectl get node -owide | awk '{print $6}' | sed -n 2p`
   sed -i 's/HYPERAUTH_EXTERNAL_IP/'$ip'/g' 2.hyperauth_certs.yaml
   kubectl apply -f 2.hyperauth_certs.yaml
-  sleep 5
+  sleep 20
 
   kubectl get secret hyperauth-https-secret -n hyperauth -o jsonpath="{['data']['tls\.crt']}" | base64 -d > /etc/kubernetes/pki/hyperauth.crt
   kubectl get secret hyperauth-https-secret -n hyperauth -o jsonpath="{['data']['ca\.crt']}" | base64 -d > /etc/kubernetes/pki/hypercloud-root-ca.crt
