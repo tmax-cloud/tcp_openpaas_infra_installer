@@ -18,6 +18,7 @@ pushd $HYPERAUTH_HOME
   wget https://cbs.centos.org/kojifiles/packages/sshpass/1.06/8.el8/x86_64/sshpass-1.06-8.el8.x86_64.rpm
   dnf install -y ./sshpass-1.06-8.el8.x86_64.rpm
   kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.4/cert-manager.yaml
+  timeout 1m kubectl -n cert-manager rollout status deployment/cert-manager-webhook
   sleep 20
   kubectl apply -f tmaxcloud-issuer.yaml
 
@@ -64,10 +65,10 @@ pushd $HYPERAUTH_HOME
   sleep 20
 popd
 
-#install hypercloud-api-server & hypercloud-single-operator
+
+#install hypercloud-api-server
 #!/bin/bash
 HYPERCLOUD_API_SERVER_HOME=$SCRIPTDIR/yaml/hypercloud-api-server
-HYPERCLOUD_SINGLE_OPERATOR_HOME=$SCRIPTDIR/yaml/hypercloud-single-operator
 source $SCRIPTDIR/k8s.config
 KA_YAML=`sudo yq e '.spec.containers[0].command' /etc/kubernetes/manifests/kube-apiserver.yaml`
 HYPERAUTH_URL=`echo "${KA_YAML#*--oidc-issuer-url=}" | tr -d '\12' | cut -d '-' -f1`
@@ -78,16 +79,6 @@ if [ -z "$(kubectl get ns | grep hypercloud5-system | awk '{print $1}')" ]; then
    kubectl create ns hypercloud5-system
 fi
 
-# Install hypercloud-single-server
-pushd $HYPERCLOUD_SINGLE_OPERATOR_HOME
-  if [ $REGISTRY != "{REGISTRY}" ]; then
-    sudo sed -i 's#tmaxcloudck/hypercloud-single-operator#'${REGISTRY}'/tmaxcloudck/hypercloud-single-operator#g' hypercloud-single-operator-v${HPCD_SINGLE_OPERATOR_VERSION}.yaml
-    sudo sed -i 's#gcr.io/kubebuilder/kube-rbac-proxy#'${REGISTRY}'/gcr.io/kubebuilder/kube-rbac-proxy#g' hypercloud-single-operator-v${HPCD_SINGLE_OPERATOR_VERSION}.yaml
-  fi
-  kubectl apply -f  hypercloud-single-operator-v${HPCD_SINGLE_OPERATOR_VERSION}.yaml
-popd
-
-# Install hypercloud-api-server
 # step 1  - create pki and secret
 if [ -z "$(kubectl get cm -n hypercloud5-system | grep html-config | awk '{print $1}')" ]; then
   sudo chmod +777 $HYPERCLOUD_API_SERVER_HOME/html/cluster-invitation.html
@@ -103,17 +94,21 @@ fi
 # step 2  - sed manifests
 if [ $REGISTRY != "{REGISTRY}" ]; then
   sudo sed -i 's#tmaxcloudck/hypercloud-api-server#'${REGISTRY}'/tmaxcloudck/hypercloud-api-server#g' ${HYPERCLOUD_API_SERVER_HOME}/03_hypercloud-api-server.yaml
-  sudo sed -i 's#tmaxcloudck/postgres-cron#'${REGISTRY}'/tmaxcloudck/postgres-cron#g' ${HYPERCLOUD_API_SERVER_HOME}/02_postgres-create.yaml
+  sudo sed -i 's#tmaxcloudck/timescaledb-cron#'${REGISTRY}'/tmaxcloudck/timescaledb-cron#g' ${HYPERCLOUD_API_SERVER_HOME}/02_timescaledb-create.yaml
 fi
 sudo sed -i 's/{HPCD_API_SERVER_VERSION}/b'${HPCD_API_SERVER_VERSION}'/g'  ${HYPERCLOUD_API_SERVER_HOME}/03_hypercloud-api-server.yaml
-sudo sed -i 's/{HPCD_POSTGRES_VERSION}/b'${HPCD_POSTGRES_VERSION}'/g'  ${HYPERCLOUD_API_SERVER_HOME}/02_postgres-create.yaml
+sudo sed -i 's/{HPCD_MODE}/'${HPCD_MODE}'/g'  ${HYPERCLOUD_API_SERVER_HOME}/03_hypercloud-api-server.yaml
+sudo sed -i 's/{HPCD_TIMESCALEDB_VERSION}/b'${HPCD_TIMESCALEDB_VERSION}'/g'  ${HYPERCLOUD_API_SERVER_HOME}/02_timescaledb-create.yaml
+sudo sed -i 's/{KAFKA_ENABLED}/'${KAFKA_ENABLED}'/g' ${HYPERCLOUD_API_SERVER_HOME}/03_hypercloud-api-server.yaml
 sudo sed -i 's/{KAFKA_GROUP_ID}/'hypercloud-api-server-$HOSTNAME-$(($RANDOM%100))'/g' ${HYPERCLOUD_API_SERVER_HOME}/03_hypercloud-api-server.yaml
 sudo sed -i 's#{HYPERAUTH_URL}#'${HYPERAUTH_URL}'#g'  ${HYPERCLOUD_API_SERVER_HOME}/01_init.yaml
+sudo sed -i 's/{API_SERVER_LOG_LEVEL}/'${API_SERVER_LOG_LEVEL}'/g'  ${HYPERCLOUD_API_SERVER_HOME}/03_hypercloud-api-server.yaml
+sudo sed -i 's/{TIMESCALEDB_LOG_LEVEL}/'${TIMESCALEDB_LOG_LEVEL}'/g'  ${HYPERCLOUD_API_SERVER_HOME}/02_timescaledb-create.yaml
 
 # step 3  - apply manifests
 pushd $HYPERCLOUD_API_SERVER_HOME
   kubectl apply -f  01_init.yaml
-  kubectl apply -f  02_postgres-create.yaml
+  kubectl apply -f  02_timescaledb-create.yaml
   kubectl apply -f  03_hypercloud-api-server.yaml
   kubectl apply -f  04_default-role.yaml
 popd
@@ -139,14 +134,14 @@ sudo yq e '.spec.dnsPolicy += "ClusterFirstWithHostNet"' -i kube-apiserver.yaml
 sudo mv -f ./kube-apiserver.yaml /etc/kubernetes/manifests/kube-apiserver.yaml
 
 # waiting for running kube-api-server correctly
-set +e
+set +xe
 for ((i=0; i<31; i++))
 do
   kubectl wait  --for=condition=ready pod --timeout=-3m -l component=kube-apiserver -n kube-system
   is_success=`echo $?`
   if [ $is_success == 0 ]; then
     break
-  elif [ $i == 10 ]; then
+  elif [ $i == 30 ]; then
     echo "Timeout Error"
     exit 1
   else
@@ -155,7 +150,8 @@ do
   fi
 done
 echo "kube-apiserver pod is ready"
-set -e
+set -x
+
 
 ### script to install hypercloud-console
 HYPERAUTH_IP=$ip:31301

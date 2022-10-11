@@ -11,6 +11,27 @@ spec:
   selector:
     hypercloud5: api-server
   type: ClusterIP
+  
+---
+
+#apiVersion: extensions/v1beta1
+#kind: Ingress
+#metadata:
+#  name: hypercloud-api-server-ingress
+#  namespace: hypercloud5-system
+#  annotations:
+#    nginx.ingress.kubernetes.io/rewrite-target: "/audit/$2"
+#    kubernetes.io/ingress.class: "nginx-shd"
+#    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+#spec:
+#  rules:
+#  - host: {INGRESS_SVCURL}
+#    http:
+#      paths:
+#      - path: /audit(/|$)(.*)
+#        backend:
+#          serviceName: hypercloud5-api-server-service
+#          servicePort: 443
 
 ---
 
@@ -37,15 +58,17 @@ spec:
       serviceAccount: hypercloud5-admin
       containers:
         - name: hypercloud5-api-server
-          image: tmaxcloudck/hypercloud-api-server:{HPCD_API_SERVER_VERSION}
+          image: tmaxcloudck/hypercloud-api-server:b5.0.34.1
           imagePullPolicy: IfNotPresent
+          args:
+          - --log-level=INFO
           env:
             - name: TZ
               value: "Asia/Seoul"
             - name: HC_MODE
               value: single # multi / single 
             - name: INVITATION_TOKEN_EXPIRED_DATE
-              value: 7days 
+              value: 7days
             - name: GODEBUG
               value: "x509ignoreCN=0"  
             - name: SIDECAR_IMAGE
@@ -53,13 +76,11 @@ spec:
             - name: KAFKA_ENABLED
               value: "false"
             - name: KAFKA_GROUP_ID
-              value: {KAFKA_GROUP_ID}
-            - name : kafka1_addr
-              value: DNS
-            - name : kafka2_addr
-              value: DNS
-            - name : kafka3_addr
-              value: DNS
+              value: hypercloud-api-server-cncf-master-17
+            - name: HC_DOMAIN
+              value: domain.com
+            - name: CONSOLE_SUBDOMAIN
+              value: console-subdomain
           ports:
           - containerPort: 443
             name: https 
@@ -89,6 +110,9 @@ spec:
           - name: html
             mountPath: /run/configs/html
             readOnly: true
+          - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+            name: hypercloud5-api-server-service-account-token
+            readOnly: true
       volumes:
       - name : html
         configMap:
@@ -116,6 +140,10 @@ spec:
           items:
           - key: ACCESS_TOKEN
             path: accessSecret
+      - name: hypercloud5-api-server-service-account-token
+        secret:
+          defaultMode: 420
+          secretName: hypercloud5-api-server-service-account-token
 ---
 apiVersion: v1
 kind: Secret

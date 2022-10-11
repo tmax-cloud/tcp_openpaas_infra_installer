@@ -19,7 +19,6 @@ spec:
    group: cert-manager.io
    name: tmaxcloud-issuer
 ---
-
 apiVersion: v1
 kind: ResourceQuota
 metadata:
@@ -38,6 +37,17 @@ kind: ServiceAccount
 metadata:
   name: hypercloud5-admin
   namespace: hypercloud5-system
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: hypercloud5-api-server-service-account-token
+  namespace: hypercloud5-system
+  annotations:
+    kubernetes.io/service-account.name: hypercloud5-admin
+type: kubernetes.io/service-account-token
 
 ---
 
@@ -168,30 +178,17 @@ data:
         container: manager
       
     - name: HyperCloud Console
-      namespace: console-system
+      namespace: api-gateway-system
       selector:
         matchLabels:
           statusLabel:
-          - app=console
+          - app.kubernetes.io/name=console
           versionLabel:
-          - app=console
+          - app.kubernetes.io/name=console
       readinessProbe:
 
       versionProbe:
        container: console
-
-    - name: HyperCloud Console Operator
-      namespace: console-system
-      selector:
-        matchLabels:
-          statusLabel:
-          - app=console
-          versionLabel:
-          - app=console
-      readinessProbe:
-
-      versionProbe:
-        container: manager
 
     - name: HyperAuth
       namespace:
@@ -201,7 +198,7 @@ data:
           versionLabel:
       readinessProbe:
         httpGet:
-          path: {HYPERAUTH_URL}
+          path: https://172.21.7.5:31301/auth/realms/tmax
       
     - name: Calico
       namespace: kube-system
@@ -227,17 +224,18 @@ data:
 
       versionProbe:
 
-    - name: Nginx Ingress Controller
-      namespace: ingress-nginx-system
+    - name: API gateway
+      namespace: api-gateway-system
       selector:
         matchLabels:
           statusLabel:
-          - app.kubernetes.io/component=controller
+          - app.kubernetes.io/name=traefik
           versionLabel:
-          - app.kubernetes.io/component=controller
+          - app.kubernetes.io/name=traefik
       readinessProbe:
 
       versionProbe:
+        container: traefik
 
     - name: Prometheus
       namespace: monitoring
@@ -307,18 +305,6 @@ data:
       versionProbe:
         container: manager
 
-    - name: KubeFed
-      namespace: kube-federation-system
-      selector:
-        matchLabels:
-          statusLabel:
-          - kubefed-control-plane=controller-manager
-          versionLabel:
-          - kubefed-control-plane=controller-manager
-      readinessProbe:
-
-      versionProbe:
-
     - name: Grafana
       namespace: monitoring
       selector:
@@ -333,14 +319,14 @@ data:
           port: 3000
       versionProbe:
 
-    - name: Kibana
+    - name: OpenSearch
       namespace: kube-logging
       selector:
         matchLabels:
           statusLabel:
-          - app=kibana
+          - app=opensearch
           versionLabel:
-          - app=kibana
+          - app=opensearch
       readinessProbe:
 
       versionProbe:

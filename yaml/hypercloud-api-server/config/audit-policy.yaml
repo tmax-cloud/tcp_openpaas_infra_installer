@@ -20,33 +20,56 @@ rules:
   # Log the request body of configmap changes in kube-system.
   - level: Metadata
     resources:
+    # k8s resource
     - group: ""
     - group: "admissionregistration.k8s.io"
     - group: "apiextensions.k8s.io"
     - group: "apiregistration.k8s.io"
     - group: "apps"
-    - group: "authentication.istio.io"
     - group: "autoscaling"
-    - group: "batch"
-    - group: "cdi.kubevirt.io"
-    - group: "ceph.rook.io"
-    - group: "cluster.x-k8s.io"
-    - group: "config.istio.io"
-    - group: "core.kubefed.io"
-    - group: "extensions"
-    - group: "kubevirt.io"
-    - group: "networking.istio.io"
-    - group: "policy"
     - group: "rbac.authorization.k8s.io"
-    - group: "rbac.istio.io"
-    - group: "security.istio.io"
+    - group: "batch"
     - group: "servicecatalog.k8s.io"
     - group: "storage.k8s.io"
-    - group: "tekton.dev"
+    - group: "policy"
+    # storage
+    - group: "ceph.rook.io"
+    # istio
+    - group: "authentication.istio.io"
+    - group: "config.istio.io"
+    - group: "networking.istio.io"
+    - group: "rbac.istio.io"
+    - group: "security.istio.io"
+    # tmax.io
     - group: "tmax.io"
     - group: "claim.tmax.io"
     - group: "cluster.tmax.io"
+    - group: "console.tmax.io"
+    - group: "cicd.tmax.io"
+    - group: "cicdapi.tmax.io"
+    - group: "helmapi.tmax.io"
+    # cicd
+    - group: "tekton.dev"
+    - group: "triggers.tekton.dev"
+    # multi cluster
     - group: "types.kubefed.io"
+    - group: "core.kubefed.io"
+    - group: "cluster.x-k8s.io"
+    - group: "addons.cluster.x-k8s.io"
+    - group: "exp.cluster.x-k8s.io"
+    - group: "bootstrap.cluster.x-k8s.io"
+    - group: "controlplane.cluster.x-k8s.io"
+    - group: "infrastructure.cluster.x-k8s.io"
+    - group: "multiclusterdns.kubefed.io"
+    - group: "scheduling.kubefed.io"
+    # hyperframe
+    - group: "kafka.strimzi.io"
+    - group: "redis.redis.opstreelabs.in"
+    # ML
+    - group: "kubeflow.org"
+    - group: "serving.kubeflow.org"
+    # etc
+    - group: "binding.operators.coreos.com"
   
   # Don't log others.
   - level: None
