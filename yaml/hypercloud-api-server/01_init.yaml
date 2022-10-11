@@ -198,7 +198,7 @@ data:
           versionLabel:
       readinessProbe:
         httpGet:
-          path: https://172.21.7.5:31301/auth/realms/tmax
+          path: {HYPERAUTH_URL}
       
     - name: Calico
       namespace: kube-system
