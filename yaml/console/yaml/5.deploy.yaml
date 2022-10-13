@@ -44,28 +44,9 @@ spec:
             - mountPath: /var/https-cert
               name: https-cert
               readOnly: true
-            - mountPath: /etc/localtime
-              name: localtime
-              readOnly: true
-            - mountPath: /etc/timezone
-              name: timezone
-              readOnly: true
-            - mountPath: /opt/bridge/configs
-              name: dynamic-config
       serviceAccount: console-system-admin
       volumes:
         - name: https-cert
           secret:
             defaultMode: 288
             secretName: console-https-secret
-        - hostPath:
-            path: /etc/localtime
-            type: ""
-          name: localtime
-        - hostPath:
-            path: /etc/timezone
-            type: ""
-          name: timezone
-        - emptyDir:
-            medium: "Memory"
-          name: dynamic-config
