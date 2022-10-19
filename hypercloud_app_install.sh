@@ -2,7 +2,7 @@
 
 
 #install hyperauth
-source k8s.config
+source ./k8s.config
 set -x
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 HYPERAUTH_HOME=$SCRIPTDIR/yaml/hyperauth
@@ -62,9 +62,26 @@ pushd $HYPERAUTH_HOME
   yq e '.spec.containers[0].command += "--oidc-groups-claim=group"' -i ./kube-apiserver.yaml
   yq e '.spec.containers[0].command += "--oidc-ca-file=/etc/kubernetes/pki/hypercloud-root-ca.crt"' -i ./kube-apiserver.yaml
   mv -f ./kube-apiserver.yaml /etc/kubernetes/manifests/kube-apiserver.yaml
-  sleep 20
-popd
+    
+  set +xe
+  for ((i=0; i<31; i++))
+  do
+    kubectl wait  --for=condition=ready pod --timeout=-3m -l component=kube-apiserver -n kube-system
+    is_success=`echo $?`
+    if [ $is_success == 0 ]; then
+      break
+    elif [ $i == 30 ]; then
+      echo "Timeout Error"
+      exit 1
+    else
+      echo "Waiting for kube-apiserver pod to be ready"
+      sleep 10s
+    fi
+  done
+  echo "kube-apiserver pod is ready"
+  set -x
 
+popd
 
 #install hypercloud-api-server
 #!/bin/bash
@@ -114,7 +131,7 @@ pushd $HYPERCLOUD_API_SERVER_HOME
 popd
 
 # waiting for running hypercloud-api-server correctly
-kubectl wait --for=condition=ready pod --timeout=-3m -l hypercloud5=api-server -n hypercloud5-system
+timeout 3m kubectl -n hypercloud5-system rollout status deployment/hypercloud5-api-server
 
 #  step 4 - create and apply config
 pushd $HYPERCLOUD_API_SERVER_HOME/config
