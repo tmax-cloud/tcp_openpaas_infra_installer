@@ -21,11 +21,8 @@ spec:
             - /opt/bridge/bin/console
             - server
             - --public-dir=/opt/bridge/static
-            - --servingInfo.listen=https://0.0.0.0:8443
-            - --servingInfo.baseAddress=https://0.0.0.0:8443
-            - --servingInfo.redirectPort=8080
-            - --servingInfo.certFile=/var/https-cert/cert
-            - --servingInfo.keyFile=/var/https-cert/key
+            - --servingInfo.listen=http://0.0.0.0:8080
+            - --servingInfo.baseAddress=http://0.0.0.0:8080
             - --app.keycloakRealm=@@REALM@@
             - --app.keycloakAuthUrl=https://@@KEYCLOAK@@/auth
             - --app.keycloakClientId=@@CLIENTID@@
@@ -40,13 +37,3 @@ spec:
               protocol: TCP
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
-          volumeMounts:
-            - mountPath: /var/https-cert
-              name: https-cert
-              readOnly: true
-      serviceAccount: console-system-admin
-      volumes:
-        - name: https-cert
-          secret:
-            defaultMode: 288
-            secretName: console-https-secret

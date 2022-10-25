@@ -44,8 +44,8 @@ function install(){
   temp_Dir="${install_dir}/yaml_temp"
   crd_temp="${temp_Dir}/1.crd.yaml"
   init_temp="${temp_Dir}/2.init.yaml"
-  job_temp="${temp_Dir}/3.job.yaml"
-  svc_temp="${temp_Dir}/4.svc-lb.yaml"
+#  job_temp="${temp_Dir}/3.job.yaml"
+  svc_temp="${temp_Dir}/4.svc.yaml"
   deploy_temp="${temp_Dir}/5.deploy.yaml"
 
   if [[ $REALM == "" || $KEYCLOAK == "" || $CLIENTID == "" ]]; then 
@@ -69,7 +69,7 @@ function install(){
   sed -i "s%@@MC_MODE@@%${MC_MODE}%g" "${deploy_temp}"
 
   if [[ "$REGISTRY" != "" ]]; then
-    sed -i "s%docker.io%$REGISTRY/docker.io%g" "${job_temp}"
+#    sed -i "s%docker.io%$REGISTRY/docker.io%g" "${job_temp}"
     sed -i "s%tmaxcloudck/hypercloud%$REGISTRY/tmaxcloudck/hypercloud%g" "${deploy_temp}"
     sed -i "s%tmaxcloudck/console%$REGISTRY/tmaxcloudck/console%g" "${deploy_temp}"
   fi
@@ -87,7 +87,7 @@ function install(){
   # Create NS, SA, CRB, CR
   kubectl apply -f "${init_temp}" "$kubectl_opt"
   # Create TLS Secret
-  kubectl apply -f "${job_temp}" "$kubectl_opt"
+#  kubectl apply -f "${job_temp}" "$kubectl_opt"
   # Create Service (Load-Balancer Type)
   kubectl apply -f "${svc_temp}" "$kubectl_opt"
   # Create Deploy

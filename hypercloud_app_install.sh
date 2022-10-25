@@ -169,6 +169,12 @@ done
 echo "kube-apiserver pod is ready"
 set -x
 
+## install api-gateway
+GATEWAY_HOME=$SCRIPTDIR/yaml/gateway
+kubectl apply -f ${GATEWAY_HOME}/0.crd
+kubectl apply -f ${GATEWAY_HOME}/1.ns.yaml
+kubectl apply -f ${GATEWAY_HOME}/2.gateway.yaml
+kubectl apply -f ${GATEWAY_HEOM}/3.ingressroute.yaml
 
 ### script to install hypercloud-console
 HYPERAUTH_IP=$ip:31301
@@ -180,6 +186,9 @@ sudo sed -i 's/'${HYPERAUTH_IP}'/{HYPERAUTH_IP}/g' ${CONSOLE_HOME}/console.confi
 # ${CONSOLE_HOME}/installer.sh install
 # sudo sed -i 's'${HYPERAUTH_IP}'##{HYPERAUTH_IP}#g'  ${CONSOLE_HOME}/console.config
 
+
+
+### install ingressroute for reverse proxy of hypercloud-api-server 
 cd ..
 
 ### end of installing hypercloud-console
