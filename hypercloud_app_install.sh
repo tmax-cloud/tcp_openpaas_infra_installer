@@ -171,10 +171,10 @@ set -x
 
 ## install api-gateway
 GATEWAY_HOME=$SCRIPTDIR/yaml/gateway
-kubectl apply -f ${GATEWAY_HOME}/0.crd
+kubectl apply -f ${GATEWAY_HOME}/0.crds
 kubectl apply -f ${GATEWAY_HOME}/1.ns.yaml
 kubectl apply -f ${GATEWAY_HOME}/2.gateway.yaml
-kubectl apply -f ${GATEWAY_HEOM}/3.ingressroute.yaml
+kubectl apply -f ${GATEWAY_HOME}/3.ingressroute.yaml
 
 ### script to install hypercloud-console
 HYPERAUTH_IP=$ip:31301

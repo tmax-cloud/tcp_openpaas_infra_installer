@@ -39,7 +39,7 @@ function install(){
   echo "=========================================================================="
   echo "STEP 1. ENV Setting"
   echo "=========================================================================="
-  cat console.config
+  cat ${install_dir}/console.config
   file_Dir="${install_dir}/yaml"
   temp_Dir="${install_dir}/yaml_temp"
   crd_temp="${temp_Dir}/1.crd.yaml"

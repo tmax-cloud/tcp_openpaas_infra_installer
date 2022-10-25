@@ -17,6 +17,8 @@ spec:
       port: http
   - kind: Rule
     match: PathPrefix(`/api/hypercloud`, `/api/multi-hypercloud`,`/api/webhook`)
+    middlewares:
+      - name: hypercloud-stripprefix@file
     priority: 100
     services:
     - kind: Service
@@ -28,7 +30,6 @@ spec:
   - kind: Rule
     match: PathPrefix(`/api/kubernetes`)
     middlewares:
-    - name: console-oauth2-proxy-forwardauth@kubernetescrd
     - name: kubernetes-stripprefix@file
     priority: 100
     services:
@@ -38,3 +39,37 @@ spec:
       port: https
       scheme: https
       serversTransport: kubernetes@file
+  - kind: Rule
+    match: PathPrefix(`/api/prometheus-tenancy/api`)
+    middlewares:
+      - name: monitoring-stripprefix-tenancy@file
+    priority: 100
+    services:
+      - kind: Service
+        name: prometheus-k8s
+        namespace: monitoring
+        port: web
+        scheme: http
+  - kind: Rule
+    match: PathPrefix(`/api/prometheus/api`)
+    middlewares:
+      - name: monitoring-stripprefix@file
+    priority: 100
+    services:
+      - kind: Service
+        name: prometheus-k8s
+        namespace: monitoring
+        port: web
+        scheme: http
+  - kind: Rule
+    match: PathPrefix(`/api/alertmanager/api`)
+    middlewares:
+      - name: monitoring-stripprefix@file
+    priority: 100
+    services:
+      - kind: Service
+        name: alertmanager-main
+        namespace: monitoring
+        port: web
+        scheme: http
+  tls: {}
