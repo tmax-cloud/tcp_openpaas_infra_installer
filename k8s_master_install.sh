@@ -17,11 +17,12 @@ else
   VERSION=${crioVersion}
 fi
 
+#add crio repo
+# fix: not exist in cent9 public repo (devel:kubic:libcontainers:stable.repo) 
 sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable.repo https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_8_Stream/devel:kubic:libcontainers:stable.repo
-sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$VERSION/CentOS_8_Stream/devel:kubic:libcontainers:stable:cri-o:$VERSION.repo
+sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$VERSION/CentOS_9_Stream/devel:kubic:libcontainers:stable:cri-o:$VERSION.repo
 
 #CentOS 9 Repo
-
 cat <<EOF > /etc/yum.repos.d/CentOS-9-Stream.repo
 [CentOS-9-baseos]
 name=CentOS - 9 - BaseOS
@@ -42,44 +43,11 @@ enabled=1
 gpgcheck=0
 EOF
 
-#install crio build and run dependencies
-yum install -y \
-  containers-common \
-  device-mapper-devel \
-  git \
-  glib2-devel \
-  glibc-devel \
-  glibc-static \
-  go \
-  gpgme-devel \
-  libassuan-devel \
-  libgpg-error-devel \
-  libseccomp-devel \
-  libselinux-devel \
-  pkgconf-pkg-config \
-  make \
-  runc \
-  gcc
-
-#get cri-o source
-git clone https://github.com/cri-o/cri-o
-cd ${install_dir}/cri-o
-git checkout release-${crioVersion}
-
-#build cri-o
-make
-sudo make install
-
-sudo make install.config
-
-#set systemd for cri-o
-sudo make install.systemd
-mkdir /var/lib/crio
-
-# start cri-o
-sudo systemctl daemon-reload
-sudo systemctl enable crio
-sudo systemctl start crio
+#install crio
+echo install crio
+sudo yum -y install cri-o
+systemctl enable crio
+systemctl start crio
 
 #Set CNI plugin directory
 sed -i "/Paths to directories where CNI plugin binaries are located/a\plugin_dirs = [\"/opt/cni/bin/\"]" /etc/crio/crio.conf
