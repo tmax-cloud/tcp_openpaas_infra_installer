@@ -1,0 +1,75 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: console
+  namespace: api-gateway-system
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - kind: Rule
+    match: PathPrefix(`/`, `/static/`, `/api/resource/`, `/api/console/`)
+    priority: 10
+    services:
+    - kind: Service
+      name: console
+      namespace: console-system
+      port: http
+  - kind: Rule
+    match: PathPrefix(`/api/hypercloud`, `/api/multi-hypercloud`,`/api/webhook`)
+    middlewares:
+      - name: hypercloud-stripprefix@file
+    priority: 100
+    services:
+    - kind: Service
+      name: hypercloud5-api-server-service
+      namespace: hypercloud5-system
+      port: https
+      scheme: https
+      serversTransport: insecure@file
+  - kind: Rule
+    match: PathPrefix(`/api/kubernetes`)
+    middlewares:
+    - name: kubernetes-stripprefix@file
+    priority: 100
+    services:
+    - kind: Service
+      name: kubernetes
+      namespace: default
+      port: https
+      scheme: https
+      serversTransport: kubernetes@file
+  - kind: Rule
+    match: PathPrefix(`/api/prometheus-tenancy/api`)
+    middlewares:
+      - name: monitoring-stripprefix-tenancy@file
+    priority: 100
+    services:
+      - kind: Service
+        name: prometheus-k8s
+        namespace: monitoring
+        port: web
+        scheme: http
+  - kind: Rule
+    match: PathPrefix(`/api/prometheus/api`)
+    middlewares:
+      - name: monitoring-stripprefix@file
+    priority: 100
+    services:
+      - kind: Service
+        name: prometheus-k8s
+        namespace: monitoring
+        port: web
+        scheme: http
+  - kind: Rule
+    match: PathPrefix(`/api/alertmanager/api`)
+    middlewares:
+      - name: monitoring-stripprefix@file
+    priority: 100
+    services:
+      - kind: Service
+        name: alertmanager-main
+        namespace: monitoring
+        port: web
+        scheme: http
+  tls: {}

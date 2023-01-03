@@ -2,7 +2,7 @@
 
 ## HyperCloud Infra
 ### Prerequisites
-- CentOS 8
+- HyperLinux 9.0
 
 ### Setup master node
 Install Kubernetes, CRI-O, Calico and HyperCloud
@@ -18,6 +18,7 @@ Install Kubernetes, CRI-O, Calico and HyperCloud
       * ex : crioVersion=1.18 k8sVersion=1.18.3
       * ex : crioVersion=1.19 k8sVersion=1.19.4
       * ex : crioVersion=1.22 k8sVersion=1.22.2
+      * ex : crioVersion=1.25 k8sVersion=1.25.0
     * `apiServer` : The IP address the API Server will advertise it's listening on.
       * ex : apiServer={Kubernetes master IP}
       * ex : apiServer=172.22.5.2
@@ -25,8 +26,8 @@ Install Kubernetes, CRI-O, Calico and HyperCloud
       * ex : podSubnet={POD_IP_POOL}/{CIDR}
       * ex : podSubnet=10.244.0.0/16
     * `calicoVersion` : calico network plugin version(OPTIONAL)
-      * If nothing is specified, the default version(v3.20) is installed.
-      * ex : calicoVersion=3.20
+      * If nothing is specified, the default version(v3.24.1) is installed.
+      * ex : calicoVersion=3.24.1
 3. Execute installer script
     ```
     ./k8s_master_install.sh
@@ -62,6 +63,7 @@ Install Kubernetes and CRI-O
       * ex : crioVersion=1.18 k8sVersion=1.18.3
       * ex : crioVersion=1.19 k8sVersion=1.19.4
       * ex : crioVersion=1.22 k8sVersion=1.22.2
+      * ex : crioVersion=1.25 k8sVersion=1.25.0
 3. Execute installer script
     ```
     ./k8s_node_install.sh
@@ -87,7 +89,7 @@ Install Kubernetes and CRI-O
 
 ### Default installed version
 
-- Rook-Ceph v1.7.6
+- Rook-Ceph v1.9.10
 
 ### Getting Started
 
@@ -120,8 +122,11 @@ Install Kubernetes and CRI-O
     - You may need additional work to do depends on the message that is displayed when the uninstallation is completed to clean up remaining ceph related data
 
 ### Additional features
-
 - In addition to installation and uninstallation, various additional functions are also provided with hcsctl for convenience
+- You can set default storageclass following commands
+    ```shell
+    kubectl patch storageclass {$storageClassName} -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+    ```
 
 You can execute following ceph commands with hcsctl.
 
@@ -138,10 +143,12 @@ $ hcsctl ceph exec ceph df
 - This project has been verified in the following versions.
     - Kubernetes
         - `kubectl` version compatible with each kubernetes server version is required.
+        - v1.25
         - v1.22
         - v1.21
         - v1.20
     - OS
+        - HyperLinux 9.0
         - Ubuntu 20.04, 18.04
         - CentOS 8.5, 8.1, 7.7
         - ProLinux 7.5, 8.2
@@ -164,4 +171,40 @@ Install hyperauth, hypercloud-api-server, hypercloud-single-operator, hypercloud
 2. Execute installer script in master node
     ```
     ./hypercloud_app_install.sh
+    ```
+
+
+## HyperCloud NFS Storage
+### Prerequisites
+
+- All nodes in the k8s cluster require the  `nfs-utils` package to be installed
+
+### Setup all nodes
+Install nfs packages
+
+1. install nfs-utils packages
+    ```
+    sudo yum install -y nfs-utils
+    ``` 
+
+### Setup master node
+Install NFS-Server, NFS-Provisioning
+
+1. Modify nfs_install.sh 
+
+    - NFS_PATH : NFS directory path
+        - ex : NFS_PATH=/mnt/nfs-shared-dir
+    - If no directory is specified, the default path is /mnt/nfs-shared-dir
+
+2. Execute NFS installer script
+
+    ```
+    ./nfs_install.sh
+    ```
+
+3. Enter Master Node IP after Execute NFS installer script
+
+    ```
+    ./nfs_install.sh
+    Enter Master IP: ex)172.21.7.5
     ```

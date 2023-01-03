@@ -1,6 +1,6 @@
 #!/bin/bash
 
-install_dir=$(dirname "$0")
+install_dir=$(dirname $(realpath $0))
 . ${install_dir}/k8s.config
 
 yaml_dir="${install_dir}/yaml"
@@ -8,16 +8,38 @@ yaml_dir="${install_dir}/yaml"
 sudo yum update -y
 
 #crio repo
-
 if [[ -z ${crioVersion} ]]; then
-  VERSION=1.22
+  VERSION=1.25
 else
   echo crio version
   VERSION=${crioVersion}
 fi
 
-sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/CentOS_8/devel:kubic:libcontainers:stable.repo
-sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:${VERSION}/CentOS_8/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo
+#add crio repo
+# fix: not exist in cent9 public repo (devel:kubic:libcontainers:stable.repo) 
+sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable.repo https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_8_Stream/devel:kubic:libcontainers:stable.repo
+sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:${VERSION}.repo https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$VERSION/CentOS_9_Stream/devel:kubic:libcontainers:stable:cri-o:$VERSION.repo
+
+#CentOS 9 Repo
+cat <<EOF > /etc/yum.repos.d/CentOS-9-Stream.repo
+[CentOS-9-baseos]
+name=CentOS - 9 - BaseOS
+baseurl=https://rpmfind.net/linux/centos-stream/9-stream/BaseOS/x86_64/os/
+enabled=1
+gpgcheck=0
+
+[CentOS-9-appstream]
+name=CentOS - 9 - AppStream
+baseurl=https://rpmfind.net/linux/centos-stream/9-stream/AppStream/x86_64/os/
+enabled=1
+gpgcheck=0
+
+[CentOS-9-CRB]
+name=CentOS - 9 - CRB
+baseurl=http://rpmfind.net/linux/centos-stream/9-stream/CRB/x86_64/os/
+enabled=1
+gpgcheck=0
+EOF
 
 #install crio
 echo install crio
@@ -25,9 +47,8 @@ sudo yum -y install cri-o
 systemctl enable crio
 systemctl start crio
 
-#remove cni0
-rm -rf /etc/cni/net.d/*
-sed -i 's/\"\/usr\/libexec\/cni\"/\"\/usr\/libexec\/cni\"\,\"\/opt\/cni\/bin\"/g' /etc/crio/crio.conf
+#Set CNI plugin directory
+sed -i "/Paths to directories where CNI plugin binaries are located/a\plugin_dirs = [\"/opt/cni/bin/\"]" /etc/crio/crio.conf
 systemctl restart crio
 
 #disable firewall
@@ -55,7 +76,7 @@ EOF
 
 #install kubernetes
 if [[ -z ${k8sVersion} ]]; then
-  k8sVersion=1.22.2
+  k8sVersion=1.25.0
 else
   echo k8s version
   k8sVersion=${k8sVersion}
@@ -77,3 +98,4 @@ EOF
 
 echo '1' > /proc/sys/net/ipv4/ip_forward
 echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
+

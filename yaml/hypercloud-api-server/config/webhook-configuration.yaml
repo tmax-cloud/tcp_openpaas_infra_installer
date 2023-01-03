@@ -50,7 +50,11 @@ webhooks:
       - operations: ["CREATE"]
         apiGroups: ["registry.tmax.io"]
         apiVersions: ["*"]
-        resources: ["*"]         
+        resources: ["*"]
+      - operations: ["CREATE"]
+        apiGroups: ["helmapi.tmax.io"]
+        apiVersions: ["*"]
+        resources: ["*"]
 # k8s      
       - operations: ["CREATE"]
         apiGroups: [""]
@@ -135,6 +139,20 @@ webhooks:
         apiGroups: ["triggers.tekton.dev"]
         apiVersions: ["*"]
         resources: ["*"]       
+## multi cluster
+      - operations: ["CREATE","UPDATE"]
+        apiGroups: ["types.kubefed.io"]
+        apiVersions: ["*"]
+        resources: ["*"]
+## hyperframe
+      - operations: ["CREATE"]
+        apiGroups: ["kafka.strimzi.io"]
+        apiVersions: ["*"]
+        resources: ["*"]
+      - operations: ["CREATE"]
+        apiGroups: ["redis.redis.opstreelabs.in"]
+        apiVersions: ["*"]
+        resources: ["*"]
 ## etc
       - operations: ["CREATE"]
         apiGroups: ["helm.fluxcd.io"]
@@ -145,11 +163,11 @@ webhooks:
         apiVersions: ["v1beta1"]
         resources: ["*"]   
       - operations: ["CREATE","UPDATE"]
-        apiGroups: ["types.kubefed.io"]
+        apiGroups: ["awx.ansible.com"]
         apiVersions: ["*"]
         resources: ["*"]
-      - operations: ["CREATE","UPDATE"]
-        apiGroups: ["awx.ansible.com"]
+      - operations: ["CREATE"]
+        apiGroups: ["binding.operators.coreos.com"]
         apiVersions: ["*"]
         resources: ["*"]
     matchPolicy: Equivalent
@@ -161,6 +179,14 @@ webhooks:
       - key: webhook
         operator: NotIn 
         values: ["false"]
+    objectSelector:
+      matchExpressions:
+      - key: hypercloud5
+        operator: NotIn
+        values: ["api-server"]
+      - key: app
+        operator: NotIn
+        values: ["timescaledb"]
     failurePolicy: Fail
   - name: hypercloud.mutating.inject.pod
     objectSelector:
