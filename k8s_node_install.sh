@@ -92,6 +92,4 @@ EOF
 
 echo install kubernetes
 yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes &&
-systemctl enable --now kubelet &&
-
-
+systemctl enable --now kubelet

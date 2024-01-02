@@ -3,6 +3,7 @@
 ## HyperCloud Infra
 ### Prerequisites
 - ProLinux 8.2 minimal installation
+- Configure /etc/hosts for master and worker nodes
 
 ### Setup master node
 Install Kubernetes, CRI-O, Calico and HyperCloud
