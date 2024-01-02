@@ -6,8 +6,8 @@ install_dir=$(dirname $(realpath $0))
 yaml_dir="${install_dir}/yaml"
 
 if [[ -z ${calicoVersion} ]]; then
-  calicoVersion=3.24.1
-  echo calicoVersion=3.24.1
+  calicoVersion=3.27.0
+  echo calicoVersion=3.27.0
 else
   calicoVersion=${calicoVersion}
 fi
@@ -26,10 +26,21 @@ rm -rf /etc/yum.repos.d/devel\:kubic\:libcontainers\:stable*
 
 yum remove -y kubeadm kubelet kubectl
 
-systemctl stop crio
-systemctl disable crio
-cd ${install_dir}/cri-o
-make clean
+systemctl stop containerd
+ctr --namespace moby c rm $(sudo ctr --namespace moby c ls -q)
+ctr --namespace moby i rm $(sudo ctr --namespace moby i ls -q)
+rm -rf /var/lib/containerd/*
+rm -rf /etc/containerd/*
+systemctl disable containerd
 
-rm -rf ${install_dir}/cri-o
+#install cni plugin
+if [[ -z ${cniVersion} ]]; then
+  VERSION=1.4.0
+else
+  echo cni version
+  VERSION=${cniVersion}
+fi
 
+cd ${install_dir}
+rm -rf cni-plugins-linux-amd64-v${VERSION}.tgz
+rm -rf /opt/cni/bin

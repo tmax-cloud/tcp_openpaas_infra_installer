@@ -45,7 +45,7 @@ else
 fi
 
 yum install -y curl
-curl -o cni-plugins-linux-amd64-v${VERSION}.tgz -L https://github.com/containernetworking/plugins/releases/download/v${VERSION}/cni-plugins-linux-amd64-v${VERSION}.tgz
+curl -o ${install_dir}/cni-plugins-linux-amd64-v${VERSION}.tgz -L https://github.com/containernetworking/plugins/releases/download/v${VERSION}/cni-plugins-linux-amd64-v${VERSION}.tgz
 mkdir -p /opt/cni/bin
 tar Cxzvf /opt/cni/bin cni-plugins-linux-amd64-v${VERSION}.tgz
 
