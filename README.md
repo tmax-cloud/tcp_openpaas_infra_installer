@@ -2,7 +2,7 @@
 
 ## HyperCloud Infra
 ### Prerequisites
-- ProLinux 8.2 minimal installation
+- ProLinux 8.6
 - Configure /etc/hosts for master and worker nodes
 
 ### Setup master node
