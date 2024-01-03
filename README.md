@@ -6,7 +6,7 @@
 - Configure /etc/hosts for master and worker nodes
 
 ### Setup master node
-Install Kubernetes, CRI-O, Calico and HyperCloud
+Install Kubernetes, Containerd, Calico and HyperCloud
 1. Download installer file in our repository
     ```
     git clone https://github.com/tmax-cloud/hypercloud_infra_installer.git
@@ -45,7 +45,7 @@ Install Kubernetes, CRI-O, Calico and HyperCloud
     ./k8s_master_install.sh
     ```
 ### Setup worker nodes
-Install Kubernetes and CRI-O
+Install Kubernetes and Containerd
 1. Download installer file in our repository
     ```
     git clone https://github.com/tmax-cloud/hypercloud_infra_installer.git
