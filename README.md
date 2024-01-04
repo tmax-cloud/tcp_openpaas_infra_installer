@@ -12,7 +12,7 @@ Install Kubernetes, Containerd, Calico and HyperCloud
     git clone https://github.com/tmax-cloud/hypercloud_infra_installer.git
     ```
 2. Modify `k8s.config` to suit your environment
-    * `cniVersion` : cni version
+    * `cniPluginVersion` : cni plugin version
     * `k8sVersion` : kubeadm, kubelet, kubectl version
     * `apiServer` : The IP address the API Server will advertise it's listening on.
       * ex : apiServer={Kubernetes master IP}
@@ -51,7 +51,7 @@ Install Kubernetes and Containerd
     git clone https://github.com/tmax-cloud/hypercloud_infra_installer.git
     ```
 2. Modify `k8s.config` to suit your environment
-    * `cniVersion` : cni version
+    * `cniPluginVersion` : cni plugin version
     * `k8sVersion` : kubeadm, kubelet, kubectl version
 3. Execute installer script
     ```

@@ -34,11 +34,11 @@ rm -rf /etc/containerd/*
 systemctl disable containerd
 
 #install cni plugin
-if [[ -z ${cniVersion} ]]; then
+if [[ -z ${cniPluginVersion} ]]; then
   VERSION=1.4.0
 else
   echo cni version
-  VERSION=${cniVersion}
+  VERSION=${cniPluginVersion}
 fi
 
 cd ${install_dir}

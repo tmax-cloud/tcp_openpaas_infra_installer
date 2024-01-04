@@ -37,11 +37,11 @@ yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce
 yum install -y containerd.io &&
 
 #install cni plugin
-if [[ -z ${cniVersion} ]]; then
+if [[ -z ${cniPluginVersion} ]]; then
   VERSION=1.4.0
 else
   echo cni version
-  VERSION=${cniVersion}
+  VERSION=${cniPluginVersion}
 fi
 
 yum install -y curl &&
