@@ -56,6 +56,7 @@ sed -i "s|pause:3.6|pause:3.2|" /etc/containerd/config.toml &&
 
 # restart containerd
 systemctl restart containerd &&
+systemctl enable containerd &&
 
 #disable firewall
 systemctl stop firewalld &&
