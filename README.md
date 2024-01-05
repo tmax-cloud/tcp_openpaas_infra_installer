@@ -78,7 +78,7 @@ Install Kubernetes and Containerd
 
 ### Default installed version
 
-- Rook-Ceph v1.9.10
+- Rook-Ceph v1.12.10
 
 ### Getting Started
 
@@ -132,6 +132,7 @@ $ hcsctl ceph exec ceph df
 - This project has been verified in the following versions.
     - Kubernetes
         - `kubectl` version compatible with each kubernetes server version is required.
+        - v1.29
         - v1.25
         - v1.22
         - v1.21
