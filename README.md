@@ -1,15 +1,15 @@
-# HyperCloud
+# TCP OpenPaaS
 
-## HyperCloud Infra
+## TCP OpenPaaS Infra
 ### Prerequisites
 - ProLinux 8.6
 - Configure /etc/hosts for master and worker nodes
 
 ### Setup master node
-Install Kubernetes, Containerd, Calico and HyperCloud
+Install Kubernetes, Containerd, Calico and TCP OpenPaaS
 1. Download installer file in our repository
     ```
-    git clone https://github.com/tmax-cloud/hypercloud_infra_installer.git
+    git clone https://github.com/tmax-cloud//tcp_openpaas_infra_installer.git
     ```
 2. Modify `k8s.config` to suit your environment
     * `cniPluginVersion` : cni plugin version
@@ -48,7 +48,7 @@ Install Kubernetes, Containerd, Calico and HyperCloud
 Install Kubernetes and Containerd
 1. Download installer file in our repository
     ```
-    git clone https://github.com/tmax-cloud/hypercloud_infra_installer.git
+    git clone https://github.com/tmax-cloud//tcp_openpaas_infra_installer.git
     ```
 2. Modify `k8s.config` to suit your environment
     * `cniPluginVersion` : cni plugin version
@@ -66,105 +66,8 @@ Install Kubernetes and Containerd
     ./k8s_uninstall.sh
     ./k8s_node_install.sh
     ```
-## HyperCloud Storage (hcsctl)
 
-`hcsctl` provides installation, removal and management of HyperCloud Storage.
-
-### Prerequisite
-
-- kubectl (>= 1.20)
-- kubernetes Cluster
-- `lvm2` package (should be installed on storage node)
-
-### Default installed version
-
-- Rook-Ceph v1.12.10
-
-### Getting Started
-
-- Rook-Ceph yaml files are required to install hypercloud-storage. You can easily create them by using hcsctl.
-
-   ``` shell
-   $ hcsctl create-inventory {$inventory_name}
-   # Ex) hcsctl create-inventory myInventory
-   ```
-- Then, a directory is created on the current path with the given inventory name. Inside of the inventory directory, a directory is created named as rook.
-  - `./myInventory/rook/*.yaml` are yaml files for Rook-Ceph installation
-- Please note that all the generated yamls are just for example. Go through each files and change values to suit your host environment
-  - **Do not modify the name of folders and files.**
-  - Take a look at [rook documentation](https://rook.github.io/docs/rook/v1.7/ceph-cluster-crd.html) before modify each fields under `./myInventory/rook/` path
-- After modifying the inventory files to suit the environment, install hypercloud-storage with hcsctl
-   ``` shell
-   $ hcsctl install {$inventory_name}
-   # Ex) hcsctl install myInventory
-   ```
-    - After installation is completed, you can use HyperCloud Block Storage and Shared Filesystem.
-
-### Uninstall
-
-- Remove hypercloud-storage with hcsctl. You need the same exact inventory name that you installed with hcsctl
-
-    ``` shell
-    $ hcsctl uninstall {$inventory_name}
-    # Ex) hcsctl uninstall myInventory
-    ```
-    - You may need additional work to do depends on the message that is displayed when the uninstallation is completed to clean up remaining ceph related data
-
-### Additional features
-- In addition to installation and uninstallation, various additional functions are also provided with hcsctl for convenience
-- You can set default storageclass following commands
-    ```shell
-    kubectl patch storageclass {$storageClassName} -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
-    ```
-
-You can execute following ceph commands with hcsctl.
-
-``` shell
-$ hcsctl ceph status
-$ hcsctl ceph exec {$ceph_cmd}
-# Commands frequently used to check the status are as follows.
-$ hcsctl ceph status
-$ hcsctl ceph exec ceph osd status
-$ hcsctl ceph exec ceph df
-```
-
-### Compatibility
-- This project has been verified in the following versions.
-    - Kubernetes
-        - `kubectl` version compatible with each kubernetes server version is required.
-        - v1.29
-        - v1.25
-        - v1.22
-        - v1.21
-        - v1.20
-    - OS
-        - HyperLinux 9.0
-        - Ubuntu 20.04, 18.04
-        - CentOS 8.5, 8.1, 7.7
-        - ProLinux 7.5, 8.2
-
-## HyperCloud App
-
-### Install HyperCloud application
-Install hyperauth, hypercloud-api-server, hypercloud-single-operator, hypercloud-console
-1. Modify k8s.config to suit your environment
-    * MAIN_MASTER_IP : Your master node's ip address
-      * ex : MAIN_MASTER_IP=172.21.7.7
-    * MASTER_NODE_ROOT_PASSWORD : Your master node's root password
-      * ex : MASTER_NODE_ROOT_PASSWORD=1234
-    * MASTER_NODE_ROOT_USER : Your master node's root user
-      * ex : Your master node's root password=root
-    * HYPERAUTH_VERSION : Hyperauth server version 
-      * ref : https://hub.docker.com/r/tmaxcloudck/hyperauth
-      * ex : latest
-
-2. Execute installer script in master node
-    ```
-    ./hypercloud_app_install.sh
-    ```
-
-
-## HyperCloud NFS Storage
+## TCP OpenPaaS NFS Storage
 ### Prerequisites
 
 - All nodes in the k8s cluster require the  `nfs-utils` package to be installed
